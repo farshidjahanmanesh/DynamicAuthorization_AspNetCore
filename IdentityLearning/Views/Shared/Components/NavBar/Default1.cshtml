@@ -1,0 +1,95 @@
+﻿@model List<NavBarViewModel>
+
+
+
+
+<style>
+    /* Remove default bullets */
+    ul, #myUL {
+        list-style-type: none;
+    }
+
+    /* Remove margins and padding from the parent ul */
+    #myUL {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Style the caret/arrow */
+    .caret {
+        cursor: pointer;
+        user-select: none; /* Prevent text selection */
+    }
+
+        /* Create the caret/arrow with a unicode, and style it */
+        .caret::before {
+            content: "\25B6";
+            color: black;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+    /* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+    .caret-down::before {
+        transform: rotate(90deg);
+    }
+
+    /* Hide the nested list */
+    .nested {
+        display: none;
+    }
+
+    /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+    .active {
+        display: block;
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div style="float:right;">
+    <ul id="myUL" style="direction:rtl;text-align:right">
+        <li>
+            <span class="caret">سطح دسترسی</span>
+            <ul class="nested">
+                @foreach (var item in Model.GroupBy(x => x.ControllerName))
+                {
+                    if (item.Count() > 0)
+                    {
+                        <li>
+                            <span class="caret">@item.Key</span>
+                            <ul class="nested">
+                                @foreach (var subItem in item)
+                                {
+                                    <li>
+                                        <a asp-action="@subItem.ActionName"
+                                           asp-controller="@subItem.ControllerName">
+                                            @subItem.PersianAccessLevelName
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+
+
+                        </li>
+                    }
+                    else
+                    {
+                        <li>@item.Key</li>
+                    }
+
+                }
+            </ul>
+        </li>
+    </ul>
+</div>

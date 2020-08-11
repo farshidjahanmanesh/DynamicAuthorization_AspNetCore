@@ -1,0 +1,14 @@
+﻿@model string
+@{
+    ViewData["Title"] = "AccessDenied";
+    //  Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="alert alert-danger" style="direction:rtl;text-align:right;">
+    <p style="font-size:16px;">شما سطح دسترسی ورود به این صفحه را ندارید.میتوانید از طریق دکمه زیر لاگین کنید</p>
+    <a class="btn btn-success"
+       style="margin-right:30px;"
+       asp-action="login" asp-controller="account" asp-route-returnurl="@Model">لاگین</a>
+    <a style="margin-right:40px;" asp-action="index" asp-controller="home">بازگشت به صفحه اصلی</a>
+</div>
+

@@ -1,0 +1,123 @@
+﻿@model List<NavBarViewModel>
+@{ 
+    int countPages =(int)Math.Ceiling((double)Model.Count / 4);
+}
+
+
+
+<style>
+    /* Remove default bullets */
+    ul, #myUL {
+        list-style-type: none;
+    }
+
+    /* Remove margins and padding from the parent ul */
+    #myUL {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Style the caret/arrow */
+    .caret {
+        cursor: pointer;
+        user-select: none; /* Prevent text selection */
+    }
+
+        /* Create the caret/arrow with a unicode, and style it */
+        .caret::before {
+            content: "\25B6";
+            color: black;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+    /* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+    .caret-down::before {
+        transform: rotate(90deg);
+    }
+
+    /* Hide the nested list */
+    .nested {
+        display: none;
+    }
+
+    /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+    .active {
+        display: block;
+    }
+</style>
+
+
+<div class="quick-links-wrapper">
+    <div class="fullHeight">
+        <div class="quick-links-body">
+            <div class="container-fluid p-0">
+                @for (int i = 0; i <countPages; i++)
+                {
+                <div class="row less-gutters">
+                    @for (int z = i; z < i + 4; z++)
+                    {
+                        if (z < Model.Count)
+                        {
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <a asp-action="@Model[z].ActionName"
+                                   asp-controller="@Model[z].ControllerName" class="quick-tile blue">
+                                    <i class="icon-settings1"></i>
+                                    @Model[z].PersianAccessLevelName
+                                </a>
+                            </div>
+                        }
+
+                    }
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+@*<div style="float:right;">
+    <ul id="myUL" style="direction:rtl;text-align:right">
+        <li>
+            <span class="caret">سطح دسترسی</span>
+            <ul class="nested">
+                @foreach (var item in Model.GroupBy(x => x.ControllerName))
+                {
+                    if (item.Count() > 0)
+                    {
+                        <li>
+                            <span class="caret">@item.Key</span>
+                            <ul class="nested">
+                                @foreach (var subItem in item)
+                                {
+                                    <li>
+                                        <a asp-action="@subItem.ActionName"
+                                           asp-controller="@subItem.ControllerName">
+                                            @subItem.PersianAccessLevelName
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+
+
+                        </li>
+                    }
+                    else
+                    {
+                        <li>@item.Key</li>
+                    }
+
+                }
+            </ul>
+        </li>
+    </ul>
+</div>*@

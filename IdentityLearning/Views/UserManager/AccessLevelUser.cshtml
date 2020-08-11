@@ -1,0 +1,95 @@
+﻿@model UserToRoleViewModel
+
+@{
+    ViewData["Title"] = "AccessLevelUser";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<h4 style="margin-bottom:20px;text-align:right;direction:rtl">نقش های کاربر @Model.UserName</h4>
+
+<div class="row col-12" style="font-size:16px;">
+    @if (ViewBag.UnValid != null)
+    {
+        <div asp-validation-summary="All"
+             class="alert alert-danger col-12" style="direction:rtl;text-align:right;"></div>
+    }
+
+    @if (ViewBag.Success != null)
+    {
+        <div class="col-12 alert alert-success"
+             style="direction:rtl;text-align:right;">
+            <p>
+                عملیات با موفقیت انجام شد
+            </p>
+        </div>
+    }
+
+
+    <form class="col-12" asp-action="AccessLevelUser" asp-controller="UserManager" method="post" asp-antiforgery="true">
+
+        <input asp-for="UserId" value="@Model.UserId" hidden />
+
+        <table class="table table-dark" style="direction:rtl;text-align:right;">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th>نام نقش</th>
+                    <th> تخصیص یا عدم تخصیص نقش به کاربر</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @{ int counter = 1;}
+                @for (int i = 0; i < Model.RoleOut.Count; i++)
+                {
+                    <tr>
+                        <th scope="row">@(counter)</th>
+                        <td>@Model.RoleOut[i].Text</td>
+                        <td>
+                            <input type="checkbox" asp-for="RoleOut[i].Selected" />
+                            <input type="hidden" asp-for="RoleOut[i].Value" hidden />
+                            <input type="hidden" asp-for="RoleOut[i].Text" hidden />
+                        </td>
+                    </tr>
+
+
+                    counter++;
+
+                }
+
+                @for (int i = 0; i < Model.RoleIn.Count; i++)
+                {
+                    <tr>
+                        <th scope="row">@counter</th>
+                        <td>@Model.RoleIn[i].Text</td>
+                        <td>
+                            <input type="checkbox" asp-for="RoleIn[i].Selected" />
+                            <input type="hidden" asp-for="RoleIn[i].Value" hidden />
+                            <input type="hidden" asp-for="RoleIn[i].Text" hidden />
+                        </td>
+                    </tr>
+
+                    counter++;
+
+                }
+
+
+            </tbody>
+        </table>
+
+        <div class="row">
+            <div class="col-2">
+                <input type="submit" class="btn btn-success btn-block" value="ثبت" style="float:right;margin-top:20px;" />
+
+            </div>
+        </div>
+       
+    </form>
+
+
+
+    <a class="btn btn-danger" style="margin-left:0px;margin-right:auto" asp-action="UsersView" asp-controller="UserManager">بازگشت به صفحه قبل</a>
+</div>

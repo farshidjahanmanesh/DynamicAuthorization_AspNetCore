@@ -1,0 +1,29 @@
+﻿@model RoleUpdateViewModel
+@{
+    ViewData["Title"] = "UpdateRole";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+    <div class="row" style="font-size:16px;">
+        <form class="form-inline" asp-action="UpdateRole" asp-controller="RoleManager"
+              asp-antiforgery="true" method="post"
+              style="direction:rtl;text-align:right;">
+            <div asp-validation-summary="All">
+
+            </div>
+            <div class="form-group mb-2">
+                <label for="staticEmail2" class="sr-only">نام نقش</label>
+                <input type="text" readonly class="form-control-plaintext" id="staticEmail2" value="@Model.OldRoleName">
+            </div>
+            <div class="form-group mx-sm-3 mb-2">
+                <label for="inputPassword2" class="sr-only">Password</label>
+                <input type="text" class="form-control" asp-for="NewRoleName" placeholder="نام نقش جدید">
+            </div>
+            <input asp-for="RoleId" value="@Model.RoleId" hidden readonly />
+            <button type="submit" class="btn btn-primary mb-2">ثبت</button>
+        </form>
+
+        <a class="btn btn-primary" asp-action="ShowRoles" asp-controller="RoleManager">بازگشت به صفحه قبل</a>
+    </div>
+

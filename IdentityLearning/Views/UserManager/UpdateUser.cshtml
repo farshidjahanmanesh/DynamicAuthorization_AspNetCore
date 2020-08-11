@@ -1,0 +1,60 @@
+﻿@model UserUpdateViewModel
+@{
+    ViewData["Title"] = "UpdateUser";
+   // Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    label{
+        font-size:16px;
+        font-weight:400;
+    }
+</style>
+
+<div class="card">
+    <div class="card-body">
+
+        <div class="row gutters">
+            <form asp-action="UpdateUser" asp-controller="UserManager"
+                  asp-antiforgery="true"
+                  method="post" class="col-12">
+                <div class="col-12" asp-validation-summary="All" >
+
+                </div>
+                <input asp-for="@Model.Id" hidden />
+
+
+
+                <div class="col-xl-4 col-lg col-md-4 col-sm-4 col-12">
+                    <label asp-for="@Model.Email"></label>
+                    <input class="form-control" type="text" asp-for="@Model.Email" placeholder="ایمیل را وارد کنید" />
+                </div>
+
+                <div class="col-xl-4 col-lg col-md-4 col-sm-4 col-12">
+                    <label asp-for="@Model.AboutMe"></label>
+                    <input class="form-control" type="text" asp-for="@Model.AboutMe" placeholder="متنی درباره خودتان وارد کنید" />
+                </div>
+
+                <div class="col-xl-4 col-lg col-md-4 col-sm-4 col-12">
+                    <label asp-for="@Model.PersianName"></label>
+                    <input class="form-control" type="text" asp-for="@Model.PersianName" placeholder="نام کاربری برای خود وارد کنید" />
+                </div>
+
+                <div class="col-xl-4 col-lg col-md-4 col-sm-4 col-12">
+                    <label asp-for="@Model.PhoneNumber"></label>
+                    <input class="form-control" type="text" asp-for="@Model.PhoneNumber" placeholder="شماره موبایل خود را وارد کنید" />
+                </div>
+
+
+                <div class="col-xl-4 col-lg col-md-4 col-sm-4 col-12">
+                    <input style="margin-top:40px;" class="btn btn-success btn-block" type="submit" value="ثبت" />
+                </div>
+
+            </form>
+
+
+        </div>
+    </div>
+</div>
+
+
