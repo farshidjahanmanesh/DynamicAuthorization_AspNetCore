@@ -11,7 +11,35 @@ using System.Security.Policy;
 using System.Threading.Tasks;
 namespace IdentityLearning.Services
 {
+    public static class AuthorizeSystemError
+    {
+        public const string DuplicateEmail = "ایمیل تکراری است";
+        public const string InvalidEmail = "ایمیل نامعتبر است";
+        public const string DuplicateUserName = "نام کاربری تکراری است";
+        public const string InvalidUserName = "نام کاربری نامعتبر است";
 
+        public const string PasswordTooShort = "رمز عبور کوتاه است";
+        public const string PasswordRequiresNonAlphanumeric = "رمز عبور نیاز به حروف غیر الفبا دارد";
+        public const string PasswordRequiresDigit = "رمز عبور نیاز به عدد دارد";
+        public const string PasswordRequiresLower = "رمز عبور نیاز به کارکتر هایی با حروف کوچک دارد";
+        public const string PasswordRequiresUpper = "رمز عبور نیاز به کارکتر هایی با حروف بزرگ دارد";
+
+        public const string EmailIsNotConfirm = "ایمیل تایید نشده است";
+        public const string InvalidUsernameOrPassword = "نام کاربری یا رمز عبور اشتباه است";
+
+        static AuthorizeSystemError()
+        {
+            
+            var fields = typeof(AuthorizeSystemError).GetFields().ToList();
+            foreach (var field in fields)
+            {
+                Codes.Add(field.Name);
+            }
+        }
+
+        public static List<string> Codes { get; set; } = new List<string>();
+
+    }
 
 
     public class AccountService
@@ -19,22 +47,28 @@ namespace IdentityLearning.Services
         public enum AccountServiceError
         {
             email_is_not_confirm,
-            invalid_username_or_password
+            invalid_username_or_password,
+            DuplicateEmail,
+            PasswordTooShort,
+            PasswordRequiresLower,
+            InvalidEmail,
+            DuplicateUserName,
+            InvalidUserName,
         }
 
 
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
         private readonly IMailService mailService;
-        private readonly IUrlHelper url;
+       // private readonly IUrlHelper url;
 
         public AccountService(UserManager<User> userManager, SignInManager<User> signInManager,
-            IMailService mailService, IUrlHelper url)
+            IMailService mailService)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.mailService = mailService;
-            this.url = url;
+            
         }
 
 
@@ -54,7 +88,7 @@ namespace IdentityLearning.Services
 
                 await signInManager.SignOutAsync();
 
-                SignInResult result =
+                var result =
                 await signInManager.PasswordSignInAsync(
                 user, loginDetail.Password, loginDetail.RememberMe, false);
                 if (result.Succeeded)
@@ -69,7 +103,7 @@ namespace IdentityLearning.Services
             });
         }
 
-        public async Task<IdentityResult> CreateAccount(UserAccountViewModel userInfo,string protocol)
+        public async Task<IdentityResult> CreateAccount(UserAccountViewModel userInfo, string protocol)
         {
             var userDetail = new User()
             {
@@ -81,29 +115,42 @@ namespace IdentityLearning.Services
             var createResult = await userManager.CreateAsync(userDetail, userInfo.Password);
             if (createResult.Errors.Count() > 0)
             {
+                List<IdentityError> errors = new List<IdentityError>();
 
-            }
-
-            if (createResult.Succeeded)
-            {
-                var user = await userManager.FindByEmailAsync(userInfo.Email);
-                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                
-                var link = url.Action("ConfirmEmail", "account", new { token = token, email = userInfo.Email }, protocol);
-                await userManager.AddClaimAsync(user, new Claim("UserName", userInfo.PersianName));
-                MailRequest mr = new MailRequest()
+                foreach (var item in createResult.Errors)
                 {
-                    Body = link,
-                    Subject = "تاییدیه ایمیل",
-                    ToEmail = userInfo.Email
-                };
-
-                await mailService.SendEmailAsync(mr);
-                return IdentityResult.Success;
-               // return RedirectToAction("login", "account");
+                    if (AuthorizeSystemError.Codes.Any(x => x == item.Code))
+                    {
+                        var fieldName =(string) typeof(AuthorizeSystemError).GetField(item.Code).GetValue(null);
+                        errors.Add(new IdentityError()
+                        {
+                            Code=item.Code,
+                            Description=fieldName
+                        });
+                    }
+                }
             }
-            
-            
+            return null;
+            //if (createResult.Succeeded)
+            //{
+            //    var user = await userManager.FindByEmailAsync(userInfo.Email);
+            //    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            //    var link = url.Action("ConfirmEmail", "account", new { token = token, email = userInfo.Email }, protocol);
+            //    await userManager.AddClaimAsync(user, new Claim("UserName", userInfo.PersianName));
+            //    MailRequest mr = new MailRequest()
+            //    {
+            //        Body = link,
+            //        Subject = "تاییدیه ایمیل",
+            //        ToEmail = userInfo.Email
+            //    };
+
+            //    await mailService.SendEmailAsync(mr);
+            //    return IdentityResult.Success;
+            //    // return RedirectToAction("login", "account");
+            //}
+
+
         }
 
     }
