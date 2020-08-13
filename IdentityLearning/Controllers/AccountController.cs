@@ -48,12 +48,15 @@ namespace IdentityLearning.Controllers
             User user = await userManager.FindByEmailAsync(login.Email);
             if (object.ReferenceEquals(null, user))
             {
-                if (!await userManager.IsEmailConfirmedAsync(user))
-                {
-                    return View("EmailConfirm");
-                }
+                ModelState.AddModelError(string.Empty, AuthorizeSystemError.InvalidUsernameOrPassword);
+                return View(login);
             }
 
+
+            if (!await userManager.IsEmailConfirmedAsync(user))
+            {
+                return View("EmailConfirm");
+            }
             await signInManager.SignOutAsync();
 
             var result = await signInManager.PasswordSignInAsync(
