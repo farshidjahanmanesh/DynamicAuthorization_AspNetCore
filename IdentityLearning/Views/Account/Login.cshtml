@@ -1,17 +1,67 @@
 ﻿@model LoginViewModel
 @{
     ViewData["Title"] = "ورود";
-   // Layout = "_layout";
+    // Layout = "_layout";
 }
 
 
 
 
 
+<form  asp-antiforgery="true" asp-action="login" asp-controller="account" method="post">
+    <div class="row justify-content-md-center">
+        <div class="col-xl-4 col-lg-5 col-md-6 col-sm-12">
+            <div class="login-screen">
+                <input asp-for="ReturnUrl" value="@ViewBag.returnUrl" hidden />
+                <div asp-validation-summary="All">
+
+                </div>
+                <div class="login-box" style="text-align:right;direction:rtl">
+                    <a href="#" class="login-logo">
+                        <img src="/img/logo-dark.png" alt="Wafi Admin Dashboard">
+                    </a>
+                    <h5>خوش آمدید <br />لطفا برای ورود به سایت ، اطلاعات خود را وارد کنید</h5>
+                    <div class="form-group">
+                        <input asp-for="@Model.Email" type="text" class="form-control" placeholder="آدرس ایمیل">
+                    </div>
+                    <div class="form-group">
+                        <input asp-for="@Model.Password" type="password" class="form-control" placeholder="رمز عبور">
+                    </div>
+                    <div class="actions mb-4">
+                        <div class="custom-control custom-checkbox">
+                            <input asp-for="@Model.RememberMe" type="checkbox" class="custom-control-input">
+                            <label class="custom-control-label" for="remember_pwd">مرا به خاطر بسپار</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">ورود</button>
+                    </div>
+                    <div class="forgot-pwd">
+                        <a class="link" asp-action="ForgetPassword" asp-controller="Account">رمز عبور خود را فراموش کرده اید؟</a>
+                    </div>
+                    <hr>
+                    <div class="actions align-left">
+                        <span class="additional-link">آیا اکانت ندارید؟</span>
+                        <a asp-action="CreateAccount" asp-controller="Account" class="btn btn-dark">ساخت اکانت جدید</a>
+                    </div>
+
+                    <hr>
+                    <div class="actions align-left">
+                        <span class="additional-link">لاگین با حساب جیمیل </span>
+                        <a asp-action="GoogleLogin" asp-controller="Account" class="btn btn-dark ">جیمیل</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 
 
-<style>
+
+
+
+
+
+@*<style>
     /* Coded with love by Mutiullah Samim */
     body,
     html {
@@ -91,17 +141,17 @@
     .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
         background-color: #c0392b !important;
     }
-</style>
+</style>*@
 
 
-<div class="d-flex justify-content-center h-100" style="margin-top:100px;">
+@*<div class="d-flex justify-content-center h-100" style="margin-top:100px;">
 
     <div class="col-4" style="background-color:aliceblue">
         <p style="font-size:20px;font-weight:500">لاگین با حساب های کاربری</p>
         <div>
             <a asp-action="GoogleLogin" asp-controller="Account"
                class="btn btn-danger" style="width:250px;margin:auto auto;">
-               لاگین با جیمیل
+                لاگین با جیمیل
             </a>
         </div>
 
@@ -147,7 +197,7 @@
 
 
         </div>
-       
+
 
         <div class="mt-4">
             <div style="font-size:16px;" class="d-flex justify-content-center links">
@@ -159,9 +209,9 @@
         </div>
     </div>
 
-</div>
+</div>*@
 
-    
+
 
 
 

@@ -25,12 +25,11 @@
 </head>
 <body>
     <style>
-        .validation{
-        color:red;
-        font-size:14px;
-        font-weight:300;
-    }
-
+        .validation {
+            color: red;
+            font-size: 14px;
+            font-weight: 300;
+        }
     </style>
 
     <!-- Loading starts -->
@@ -90,14 +89,14 @@
                     else
                     {
                         <a asp-action="login" asp-controller="account"
-                           class="btn btn-danger" >ورود</a>
+                           class="btn btn-danger">ورود</a>
                     }
                 </li>
                 @*<li>
-                    <a href="#" class="quick-settings-btn" data-toggle="tooltip" data-placement="left" title="" data-original-title="Quick Settings">
-                        <i class="icon-list"></i>
-                    </a>
-                </li>*@
+                        <a href="#" class="quick-settings-btn" data-toggle="tooltip" data-placement="left" title="" data-original-title="Quick Settings">
+                            <i class="icon-list"></i>
+                        </a>
+                    </li>*@
             </ul>
             <!-- Header actions end -->
         </div>
@@ -107,18 +106,18 @@
     <div class="screen-overlay"></div>
     <!-- Screen overlay end -->
     <!-- Quicklinks box start -->
-    <div class="quick-links-box">
-        <div class="quick-links-header">
-            بخش بندی ها 
-            <a href="#" class="quick-links-box-close">
-                <i class="icon-circle-with-cross"></i>
-            </a>
-        </div>
+    @*<div class="quick-links-box">
+            <div class="quick-links-header">
+                بخش بندی ها
+                <a href="#" class="quick-links-box-close">
+                    <i class="icon-circle-with-cross"></i>
+                </a>
+            </div>
 
-        @await Component.InvokeAsync("NavBar")
+            @await Component.InvokeAsync("NavBar")
 
-        
-    </div>
+
+        </div>*@
     <!-- Quicklinks box end -->
     <!-- Quick settings start -->
     <!-- Quick settings end -->
@@ -126,17 +125,51 @@
         ************ Header section end *************
     ************* -->
     <!-- Container fluid start -->
-    
+
+
 
     <div class="container-fluid">
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <nav class="navbar navbar-expand-lg custom-navbar">
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#WafiAdminNavbar" aria-controls="WafiAdminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon">
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                    </span>
+                </button>
+                @await Component.InvokeAsync("TopMenu")
+
+            </nav>
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <div class="main-container">
-            salam
             <div class="content-wrapper">
                 @RenderBody()
             </div>
-           
+
         </div>
-        
+
     </div>
 
 

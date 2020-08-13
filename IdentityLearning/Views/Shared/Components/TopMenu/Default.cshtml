@@ -1,0 +1,30 @@
+﻿
+@model IEnumerable<IGrouping<string,NavBarViewModel>>
+
+
+
+
+<div class="collapse navbar-collapse" id="WafiAdminNavbar">
+    <ul class="navbar-nav">
+        @foreach (var item in Model)
+        {
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dashboardsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="icon-devices_other nav-icon"></i>
+                    @item.Key
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="dashboardsDropdown">
+                    @foreach (var subItem in item)
+                    {
+                        <li>
+                            <a class="dropdown-item" asp-action="@subItem.ActionName"
+                               asp-controller="@subItem.ControllerName">@subItem.PersianAccessLevelName</a>
+                        </li>
+                    }
+
+                </ul>
+            </li>
+        }
+        
+    </ul>
+</div>

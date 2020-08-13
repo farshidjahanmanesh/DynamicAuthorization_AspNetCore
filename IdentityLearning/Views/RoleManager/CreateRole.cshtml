@@ -10,18 +10,20 @@
 
 
 
-<p style="margin-bottom:20px;text-align:right;direction:rtl;font-size:16px;">ایجاد نقش جدید</p>
 
-<div style="font-size:16px;">
+<div class="row gutters" style="font-size:16px;">
+    <h3 style="margin-bottom:20px;text-align:right;direction:rtl;font-size:16px;">ایجاد نقش جدید</h3>
+
+
     @if (ViewBag.UnValid != null)
     {
-        <div asp-validation-summary="All"
+        <div asp-validation-summary="ModelOnly"
              class="alert alert-danger" style="direction:rtl;text-align:right;"></div>
     }
 
 
 
-    <form asp-action="CreateRole" asp-controller="RoleManager" method="post" asp-antiforgery="true">
+    <form class="col-12" asp-action="CreateRole" asp-controller="RoleManager" method="post" asp-antiforgery="true">
 
         <div class="row" style="text-align:right;direction:rtl;margin-bottom:20px;">
             <div class="col-2">
@@ -29,64 +31,80 @@
             </div>
             <div class="col-5">
                 <input class="input-group-text" asp-for="RoleName" style="direction:rtl;text-align:right;" />
+                <span asp-validation-for="RoleName" class="validation"></span>
             </div>
 
         </div>
 
-        <table class="table table-dark" style="direction:rtl;text-align:right;">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th>نام وظیفه</th>
-                    <th> تخصیص یا عدم تخصیص وظیفه به نقش</th>
-                </tr>
-            </thead>
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table custom-table m-0" style="direction:rtl;text-align:right;">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th>نام وظیفه</th>
+                                <th> تخصیص یا عدم تخصیص وظیفه به نقش</th>
+                            </tr>
+                        </thead>
 
-            <tbody>
-                @{ int counter = 1;}
-                @for (int i = 0; i < Model.PermissionOut.Count; i++)
-                {
-                    <tr>
-                        <th scope="row">@(counter)</th>
-                        <td>@Model.PermissionOut[i].Text</td>
-                        <td>
-                            <input type="checkbox" asp-for="PermissionOut[i].Selected" />
-                            <input type="hidden" asp-for="PermissionOut[i].Value" hidden />
-                            <input type="hidden" asp-for="PermissionOut[i].Text" hidden />
-                        </td>
-                    </tr>
-
-
-                    counter++;
-
-                }
-
-                @for (int i = 0; i < Model.PermissionIn.Count; i++)
-                {
-                    <tr>
-                        <th scope="row">@counter</th>
-                        <td>@Model.PermissionIn[i].Text</td>
-                        <td>
-                            <input type="checkbox" asp-for="PermissionIn[i].Selected" />
-                            <input type="hidden" asp-for="PermissionIn[i].Value" hidden />
-                            <input type="hidden" asp-for="PermissionIn[i].Text" hidden />
-                        </td>
-                    </tr>
-
-                    counter++;
-
-                }
+                        <tbody>
+                            @{ int counter = 1;}
+                            @for (int i = 0; i < Model.PermissionOut.Count; i++)
+                            {
+                                <tr>
+                                    <th scope="row">@(counter)</th>
+                                    <td>@Model.PermissionOut[i].Text</td>
+                                    <td>
+                                        <input type="checkbox" asp-for="PermissionOut[i].Selected" />
+                                        <input type="hidden" asp-for="PermissionOut[i].Value" hidden />
+                                        <input type="hidden" asp-for="PermissionOut[i].Text" hidden />
+                                    </td>
+                                </tr>
 
 
-            </tbody>
-        </table>
+                                counter++;
 
-        <input type="submit" class="btn btn-success" value="ثبت" style="float:right;margin-top:20px;" />
+                            }
+
+                            @for (int i = 0; i < Model.PermissionIn.Count; i++)
+                            {
+                                <tr>
+                                    <th scope="row">@counter</th>
+                                    <td>@Model.PermissionIn[i].Text</td>
+                                    <td>
+                                        <input type="checkbox" asp-for="PermissionIn[i].Selected" />
+                                        <input type="hidden" asp-for="PermissionIn[i].Value" hidden />
+                                        <input type="hidden" asp-for="PermissionIn[i].Text" hidden />
+                                    </td>
+                                </tr>
+
+                                counter++;
+
+                            }
+
+
+                        </tbody>
+                    </table>
+
+
+
+
+                </div>
+            </div>
+        </div>
+
+
+
+      
+        <input type="submit" class="btn btn-success" value="ثبت" style="width:130px;float:right;margin-top:20px;" />
     </form>
 
+    <div class="col-12">
+        <a style="margin-top:20px;float:left;width:140px;" class="btn btn-primary" asp-action="ShowRoles" asp-controller="RoleManager">بازگشت به صفحه قبل</a>
 
-    <a class="btn btn-primary" asp-action="ShowRoles" asp-controller="RoleManager">بازگشت به صفحه قبل</a>
-
+    </div>
+   
 </div>
 
 

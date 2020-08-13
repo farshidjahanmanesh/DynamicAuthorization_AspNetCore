@@ -1,58 +1,68 @@
 ﻿@model UserUpdateViewModel
 @{
     ViewData["Title"] = "UpdateUser";
-   // Layout = "~/Views/Shared/_Layout.cshtml";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <style>
-    label{
-        font-size:16px;
-        font-weight:400;
+    label {
+        font-size: 16px;
+        font-weight: 400;
     }
 </style>
 
-<div class="card">
-    <div class="card-body">
+<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+    <div class="card">
+        <div class="card-body">
 
-        <div class="row gutters">
-            <form asp-action="UpdateUser" asp-controller="UserManager"
-                  asp-antiforgery="true"
-                  method="post" class="col-12">
-                <div class="col-12" asp-validation-summary="All" >
+            <div class="row gutters">
+                <form asp-action="UpdateUser" asp-controller="UserManager"
+                      asp-antiforgery="true"
+                      method="post"
+                      class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                    <div class="col-12" asp-validation-summary="ModelOnly">
 
+                    </div>
+                    <input asp-for="@Model.Id" hidden />
+
+
+
+                    <div class="col-xl-4 col-lg col-md-6 col-sm-8 col-12">
+                        <label asp-for="@Model.Email"></label>
+                        <input class="form-control" type="text" asp-for="@Model.Email" placeholder="ایمیل را وارد کنید" />
+                        <span asp-validation-for="Email" class="validation"></span>
+
+                    </div>
+
+                    <div class="col-xl-4 col-lg col-md-6 col-sm-8 col-12">
+                        <label asp-for="@Model.AboutMe"></label>
+                        <textarea class="form-control" type="text" asp-for="@Model.AboutMe" placeholder="متنی درباره خودتان وارد کنید" ></textarea>
+                        <span asp-validation-for="AboutMe" class="validation"></span>
+                    </div>
+
+                    <div class="col-xl-4 col-lg col-md-6 col-sm-8 col-12">
+                        <label asp-for="@Model.PersianName"></label>
+                        <input class="form-control" type="text" asp-for="@Model.PersianName" placeholder="نام کاربری برای خود وارد کنید" />
+                        <span asp-validation-for="PersianName" class="validation"></span>
+                    </div>
+
+                    <div class="col-xl-4 col-lg col-md-6 col-sm-8 col-12">
+                        <label asp-for="@Model.PhoneNumber"></label>
+                        <input class="form-control" type="text" asp-for="@Model.PhoneNumber" placeholder="شماره موبایل خود را وارد کنید" />
+                        <span asp-validation-for="PhoneNumber" class="validation"></span>
+                    </div>
+
+
+                    <div class="col-xl-4 col-lg col-md-6 col-sm-8 col-12">
+                        <input style="margin-top:40px;" class="btn btn-success btn-block" type="submit" value="ثبت" />
+                    </div>
+
+                </form>
+
+                <div class="col-12" style="margin-top:30px;">
+                    <a asp-action="UsersView" asp-controller="UserManager" class="btn btn-primary" style="float:left;width:100px;">بازگشت به عقب</a>
                 </div>
-                <input asp-for="@Model.Id" hidden />
-
-
-
-                <div class="col-xl-4 col-lg col-md-4 col-sm-4 col-12">
-                    <label asp-for="@Model.Email"></label>
-                    <input class="form-control" type="text" asp-for="@Model.Email" placeholder="ایمیل را وارد کنید" />
-                </div>
-
-                <div class="col-xl-4 col-lg col-md-4 col-sm-4 col-12">
-                    <label asp-for="@Model.AboutMe"></label>
-                    <input class="form-control" type="text" asp-for="@Model.AboutMe" placeholder="متنی درباره خودتان وارد کنید" />
-                </div>
-
-                <div class="col-xl-4 col-lg col-md-4 col-sm-4 col-12">
-                    <label asp-for="@Model.PersianName"></label>
-                    <input class="form-control" type="text" asp-for="@Model.PersianName" placeholder="نام کاربری برای خود وارد کنید" />
-                </div>
-
-                <div class="col-xl-4 col-lg col-md-4 col-sm-4 col-12">
-                    <label asp-for="@Model.PhoneNumber"></label>
-                    <input class="form-control" type="text" asp-for="@Model.PhoneNumber" placeholder="شماره موبایل خود را وارد کنید" />
-                </div>
-
-
-                <div class="col-xl-4 col-lg col-md-4 col-sm-4 col-12">
-                    <input style="margin-top:40px;" class="btn btn-success btn-block" type="submit" value="ثبت" />
-                </div>
-
-            </form>
-
-
+            </div>
         </div>
     </div>
 </div>

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using IdentityLearning.Infrastructure;
 using IdentityLearning.Services;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace IdentityLearning
 {
@@ -30,7 +31,15 @@ namespace IdentityLearning
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            var policy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+
+
+            services.AddControllersWithViews(config =>
+            {
+                config.Filters.Add(new AuthorizeFilter(policy));
+            });
 
             services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
             services.AddTransient<IMailService, MailService>();
@@ -117,6 +126,6 @@ namespace IdentityLearning
             //SeedData();
         }
 
-       
+
     }
 }

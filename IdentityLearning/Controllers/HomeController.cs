@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using IdentityLearning.Infrastructure;
 using IdentityLearning.Models;
@@ -11,34 +13,17 @@ namespace IdentityLearning.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly AccountService ca;
+        private readonly IMailService mail;
 
-        public HomeController(AccountService ca)
+        public HomeController(IMailService mail)
         {
-           var r= AuthorizeSystemError.Codes;
-           
-            this.ca = ca;
-           
+            this.mail = mail;
+            
         }
 
-        [Authorize(Policy =nameof(IdentityLearning.Models.persmission.UserView))]
-        public void temp()
-        {
-
-        }
-        public async Task test()
-        {
-            await ca.CreateAccount(new Models.ViewModels.UserAccountViewModel()
-            {
-                ConfirmPassword = "12341213123",
-                Email = "samicancel2@gmail.com",
-                Password = "12341213123",
-                PersianName = "az"
-            }, "");
-        }
         public IActionResult Index()
         {
-            return View(User.Claims);
+            return View();
         }
 
     }

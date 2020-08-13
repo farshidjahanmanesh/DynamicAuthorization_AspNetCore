@@ -1,16 +1,6 @@
-﻿@using System.Security.Claims
-@model IEnumerable<Claim>
+﻿
 @{
     ViewData["Title"] = "Index";
     //Layout = "_layout";
-}
-
-
-@foreach(var item in Model)
-{
-    <p>@item.Issuer</p>
-    <p>@item.Type</p>
-    <p>@item.Value</p>
-    <p>@item.Subject</p>
 }
 

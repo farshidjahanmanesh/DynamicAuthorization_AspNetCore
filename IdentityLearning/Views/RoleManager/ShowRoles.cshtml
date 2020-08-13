@@ -5,76 +5,86 @@
 }
 
 
-    <div class="row">
+<div class="row gutters">
 
-        <div class="col-12" style="direction:rtl;font-size:60px;">
-            <a type="submit" style="float:right;margin-bottom:10px;"
-               class="btn btn-success" asp-action="CreateRole" asp-controller="RoleManager"> افزودن نقش</a>
-        </div>
-
-
-        <table class="table table-dark col-md-12 col-12" style="direction:rtl;font-size:16px;">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">نام نقش</th>
-                    <th scope="col">حذف نقش</th>
-                    <th scope="col">تغییر نقش</th>
-                    <th scope="col">تغییر سطح دسترسی نقش</th>
-
-                </tr>
-            </thead>
-            @{
-                int counter = 1;
-            }
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <th scope="row">@counter</th>
-                        <td>@item.Name</td>
-                        <td>
-                            <form asp-action="DeleteRole" asp-controller="RoleManager" asp-antiforgery="true"
-                                  asp-route-id="@item.Id"
-                                  method="post">
-                                <input type="submit" class="btn btn-danger"
-                                       value="حذف نقش" />
-
-
-                            </form>
-
-                        </td>
-                        <td>
-
-                            <form asp-action="UpdateRole" asp-controller="RoleManager"
-                                  asp-route-id="@item.Id"
-                                  method="get">
-                                <input type="submit" class="btn btn-info"
-                                       value=" تغییر نقش" />
-
-
-                            </form>
-
-                        </td>
-
-                        <td>
-                            <form asp-action="AccessLevelRole" asp-controller="RoleManager"
-                                  asp-route-id="@item.Id"
-                                  method="get">
-                                <input type="submit" class="btn btn-warning"
-                                       value="  تغییر سطح دسترسی نقش" />
-
-
-                            </form>
-
-                        </td>
-                    </tr>
-
-                    counter++;
-                }
-            </tbody>
-        </table>
+    <div class="col-12" style="direction:rtl;font-size:60px;">
+        <a type="submit" style="float:right;margin-bottom:10px;"
+           class="btn btn-success" asp-action="CreateRole" asp-controller="RoleManager"> افزودن نقش</a>
     </div>
+
+
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table custom-table m-0" style="direction:rtl;font-size:16px;">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">نام نقش</th>
+                            <th scope="col">حذف نقش</th>
+                            <th scope="col">تغییر نقش</th>
+                            <th scope="col">تغییر سطح دسترسی نقش</th>
+
+                        </tr>
+                    </thead>
+                    @{
+                        int counter = 1;
+                    }
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <th scope="row">@counter</th>
+                                <td>@item.Name</td>
+                                <td>
+                                    <form asp-action="DeleteRole" asp-controller="RoleManager" asp-antiforgery="true"
+                                          asp-route-id="@item.Id"
+                                          method="post">
+                                        <input type="submit" class="btn btn-danger"
+                                               value="حذف نقش" />
+
+
+                                    </form>
+
+                                </td>
+                                <td>
+
+                                    <form asp-action="UpdateRole" asp-controller="RoleManager"
+                                          asp-route-id="@item.Id"
+                                          method="get">
+                                        <input type="submit" class="btn btn-info"
+                                               value=" تغییر نقش" />
+
+
+                                    </form>
+
+                                </td>
+
+                                <td>
+                                    <form asp-action="AccessLevelRole" asp-controller="RoleManager"
+                                          asp-route-id="@item.Id"
+                                          method="get">
+                                        <input type="submit" class="btn btn-warning"
+                                               value="  تغییر سطح دسترسی نقش" />
+
+
+                                    </form>
+
+                                </td>
+                            </tr>
+
+                            counter++;
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+
+    
+</div>
 
 
 

@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityLearning.Controllers
 {
-    [AllowAnonymous]
+   // [AllowAnonymous]
     public class AccountController : Controller
     {
         private readonly UserManager<User> userManager;
@@ -29,13 +29,16 @@ namespace IdentityLearning.Controllers
             this.accountService = accountService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
+        [MarkedToNavBar("ورود با حساب کاربری جدید")]
         public IActionResult Login(string returnUrl)
         {
             ViewBag.returnUrl = returnUrl;
             return View();
         }
 
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel login)
@@ -72,7 +75,7 @@ namespace IdentityLearning.Controllers
 
         }
 
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> LogOut()
         {
             var user = User;
@@ -80,18 +83,20 @@ namespace IdentityLearning.Controllers
             return RedirectToAction("index", controllerName: "home");
         }
 
+
         public IActionResult AccessDenied(string returnUrl)
         {
             return View(model: returnUrl);
         }
 
 
+        [AllowAnonymous]
         public IActionResult CreateAccount()
         {
             return View(new UserAccountViewModel());
         }
 
-
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> CreateAccount(UserAccountViewModel uv)
@@ -136,7 +141,8 @@ namespace IdentityLearning.Controllers
 
         }
 
-        [Authorize]
+       // [Authorize]
+        [MarkedToNavBar("تغییر رمز عبور")]
         public async Task<IActionResult> ChangePassword()
         {
             var user = await userManager.FindByNameAsync(User.Identity.Name);
@@ -152,7 +158,7 @@ namespace IdentityLearning.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+       // [Authorize]
         [MarkedToNavBar("تغییر رمز عبور")]
         public async Task<IActionResult> ChangePassword(ChangePasswrodViewModel cp)
         {
@@ -180,12 +186,13 @@ namespace IdentityLearning.Controllers
             return View(cp);
         }
 
-
+        [AllowAnonymous]
         public IActionResult ForgetPassword()
         {
             return View();
         }
 
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> ForgetPassword(string email)
@@ -209,7 +216,7 @@ namespace IdentityLearning.Controllers
             return View();
         }
 
-        [Authorize]
+     //   [Authorize]
         public IActionResult ResetPassword(string email, string token)
         {
             var fp = new ForgetPasswordViewModel()
@@ -220,7 +227,7 @@ namespace IdentityLearning.Controllers
             return View(fp);
         }
 
-        [Authorize]
+     //   [Authorize]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ForgetPasswordViewModel fp)
@@ -251,6 +258,7 @@ namespace IdentityLearning.Controllers
             throw new System.Exception();
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string email, string token)
         {
             var user = await userManager.FindByEmailAsync(email);
@@ -274,7 +282,7 @@ namespace IdentityLearning.Controllers
 
         }
 
-
+        [AllowAnonymous]
         public IActionResult GoogleLogin()
         {
             string redirectUrl = Url.Action("GoogleResponse", "Account");
@@ -282,6 +290,7 @@ namespace IdentityLearning.Controllers
             return new ChallengeResult("Google", result);
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> GoogleResponse()
         {
             ExternalLoginInfo info = await signInManager.GetExternalLoginInfoAsync();
@@ -348,7 +357,8 @@ namespace IdentityLearning.Controllers
 
         }
 
-        [Authorize]
+        //[Authorize]
+        [MarkedToNavBar("تغییر پروفایل کاربری")]
         public async Task<IActionResult> EditProfile()
         {
             var user = await userManager.FindByEmailAsync(User.Identity.Name);
@@ -364,7 +374,7 @@ namespace IdentityLearning.Controllers
             return View(userModel);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost]
         public async Task<IActionResult> EditProfile(UserUpdateViewModel up)
         {
