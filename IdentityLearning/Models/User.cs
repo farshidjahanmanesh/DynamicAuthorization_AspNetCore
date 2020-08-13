@@ -16,19 +16,19 @@ using System.Threading.Tasks;
 
 namespace IdentityLearning.Models
 {
-    public class PolicyAttribute : AuthorizeAttribute
-    {
-        public PolicyAttribute(params persmission[] persmissions)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (var item in persmissions)
-            {
-                sb.Append(item);
-            }
-            Policy = sb.ToString();
-        }
+    //public class PolicyAttribute : AuthorizeAttribute
+    //{
+    //    public PolicyAttribute(params persmission[] persmissions)
+    //    {
+    //        StringBuilder sb = new StringBuilder();
+    //        foreach (var item in persmissions)
+    //        {
+    //            sb.Append(item);
+    //        }
+    //        Policy = sb.ToString();
+    //    }
 
-    }
+    //}
     public class PolicyAuthorize : IAuthorizationService
     {
         private readonly UserManager<User> userManager;
@@ -57,42 +57,6 @@ namespace IdentityLearning.Models
             if (requirements.Count() > 0)
                 if (claimsList.Count() == 0)
                     return await Task.FromResult<AuthorizationResult>(AuthorizationResult.Failed());
-
-            //foreach (var item in requirements)
-            //{
-            //    ClaimsAuthorizationRequirement temp;
-
-                
-
-            //    if (item is ClaimsAuthorizationRequirement)
-            //    {
-            //        temp = item as ClaimsAuthorizationRequirement;
-
-            //        foreach (var rolename in UserRolenames)
-            //        {
-            //            var role = await roleManager.FindByNameAsync(rolename);
-            //            var claims = await roleManager.GetClaimsAsync(role);
-
-            //            foreach (var SubItem in temp.AllowedValues)
-            //            {
-            //                if (!claims.Any(c => c.Type == temp.ClaimType && c.Value == SubItem))
-            //                {
-            //                    result = false;
-            //                    break;
-            //                }
-
-            //            }
-
-
-            //        }
-            //    }
-
-            //    if (result == false)
-            //        break;
-
-            //}
-
-            
 
             foreach(var item in requirements)
             {
@@ -152,5 +116,12 @@ namespace IdentityLearning.Models
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            //this.user
+            base.OnModelCreating(builder);
+        }
+
     }
 }

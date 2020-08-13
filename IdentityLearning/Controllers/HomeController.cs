@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using IdentityLearning.Infrastructure;
 using IdentityLearning.Models;
 using IdentityLearning.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,6 +21,11 @@ namespace IdentityLearning.Controllers
            
         }
 
+        [Authorize(Policy =nameof(IdentityLearning.Models.persmission.UserView))]
+        public void temp()
+        {
+
+        }
         public async Task test()
         {
             await ca.CreateAccount(new Models.ViewModels.UserAccountViewModel()

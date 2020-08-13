@@ -1,12 +1,17 @@
 ﻿using IdentityLearning.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IdentityLearning.Infrastructure
 {
+
+ 
+
     public class IsUserExistFilter:ActionFilterAttribute
     {
         private readonly UserManager<User> userManager;

@@ -40,29 +40,33 @@ namespace IdentityLearning.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel login)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var loginResult = await accountService.LoginAsync(login);
-                if (loginResult.Succeeded)
-                    return LocalRedirect(login.ReturnUrl ?? "/");
-
-                if (loginResult.Errors.Any(x => x.Code == nameof(AccountService
-                     .AccountServiceError.email_is_not_confirm)))
+                ViewBag.returnUrl = login.ReturnUrl;
+                return View(login);
+            }
+            User user = await userManager.FindByEmailAsync(login.Email);
+            if (object.ReferenceEquals(null, user))
+            {
+                if (!await userManager.IsEmailConfirmedAsync(user))
                 {
                     return View("EmailConfirm");
                 }
-
-                if (loginResult.Errors.Any(x => x.Code == nameof(AccountService
-                      .AccountServiceError.invalid_username_or_password)))
-                {
-                    ModelState.AddModelError(nameof(login.Email),
-                "Invalid user or password");
-                }
-
-
             }
-            ViewBag.returnUrl = login.ReturnUrl;
-            return View(login);
+
+            await signInManager.SignOutAsync();
+
+            var result = await signInManager.PasswordSignInAsync(
+            user, login.Password, login.RememberMe, false);
+
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, AuthorizeSystemError.InvalidUsernameOrPassword);
+                return View(login);
+            }
+
+            return LocalRedirect(login.ReturnUrl ?? "/");
+
         }
 
         [Authorize]
@@ -91,6 +95,7 @@ namespace IdentityLearning.Controllers
         {
             if (ModelState.IsValid)
             {
+
                 var userDetail = new User()
                 {
                     PersianName = uv.PersianName,
@@ -144,7 +149,7 @@ namespace IdentityLearning.Controllers
         }
 
         [HttpPost]
-        [Policy]
+        [Authorize]
         [MarkedToNavBar("تغییر رمز عبور")]
         public async Task<IActionResult> ChangePassword(ChangePasswrodViewModel cp)
         {
@@ -201,6 +206,7 @@ namespace IdentityLearning.Controllers
             return View();
         }
 
+        [Authorize]
         public IActionResult ResetPassword(string email, string token)
         {
             var fp = new ForgetPasswordViewModel()
@@ -211,6 +217,7 @@ namespace IdentityLearning.Controllers
             return View(fp);
         }
 
+        [Authorize]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ForgetPasswordViewModel fp)
@@ -286,7 +293,43 @@ namespace IdentityLearning.Controllers
             var user = await userManager.FindByEmailAsync(userEmail);
             if (user == null)
             {
-                throw new NotImplementedException();
+                var createUser = new User
+                {
+                    Email = userEmail,
+                    UserName = userEmail,
+
+                };
+                var pass =string.Concat(Guid.NewGuid().ToString().Take(10));
+                var createResult = await userManager.CreateAsync(createUser, pass);
+                if (!createResult.Succeeded)
+                    return NotFound();
+
+                user = await userManager.FindByEmailAsync(userEmail);
+                await signInManager.SignInAsync(user, true);
+                
+
+                var loginResult = await userManager.AddLoginAsync(user, info);
+
+                try
+                {
+                    var bodyRequest = new StringBuilder();
+                    bodyRequest.AppendLine($"حساب کاربری شما با ایمیل {pass} و رمز عبور {userEmail} در سایت فعال شده است.");
+                    bodyRequest.AppendLine("از این پس میتوانید علاوه بر ورود به سایت از طریق حساب کاربری جیمیل ، از این طریق نیز به سایت وارد شوید");
+                    bodyRequest.AppendLine("با تشکر از شما.");
+                    var mail = new MailRequest()
+                    {
+                        Subject = "حساب کاربری فعال شد",
+                        ToEmail = userEmail,
+                        Body = bodyRequest.ToString()
+                    };
+                    await mailService.SendEmailAsync(mail);
+                }
+                catch (Exception)
+                {
+
+                }
+              
+                return RedirectToAction("index", "home");
             }
             else
             {
@@ -302,7 +345,7 @@ namespace IdentityLearning.Controllers
 
         }
 
-        [Policy]
+        [Authorize]
         public async Task<IActionResult> EditProfile()
         {
             var user = await userManager.FindByEmailAsync(User.Identity.Name);
@@ -318,7 +361,7 @@ namespace IdentityLearning.Controllers
             return View(userModel);
         }
 
-        [Policy]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> EditProfile(UserUpdateViewModel up)
         {

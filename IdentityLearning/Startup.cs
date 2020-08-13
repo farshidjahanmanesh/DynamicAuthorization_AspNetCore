@@ -34,7 +34,8 @@ namespace IdentityLearning
 
             services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
             services.AddTransient<IMailService, MailService>();
-            services.Configure<DataProtectionTokenProviderOptions>(options => {
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
                 options.TokenLifespan = TimeSpan.FromMinutes(15);
             });
 
@@ -57,7 +58,7 @@ namespace IdentityLearning
                 .AddEntityFrameworkStores<TestIdentityDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddScoped<IAuthorizationService, PolicyAuthorize>();
+            //services.AddScoped<IAuthorizationService, PolicyAuthorize>();
             services.AddAuthorization(config =>
             {
 
@@ -71,7 +72,8 @@ namespace IdentityLearning
 
             });
 
-            services.AddAuthentication().AddGoogle(config=> {
+            services.AddAuthentication().AddGoogle(config =>
+            {
                 config.ClientId = "933619901017-lvcj1k09vetbbfa3a4lg4aln1dtsqg8h.apps.googleusercontent.com";
                 config.ClientSecret = "PW79CzRq1NwQccZxGVpVfnfD";
                 config.SignInScheme = IdentityConstants.ExternalScheme;
@@ -84,7 +86,7 @@ namespace IdentityLearning
                 c.Cookie.Name = "Authorize";
                 c.SlidingExpiration = true;
             });
-            
+
             services.Configure<SecurityStampValidatorOptions>(options =>
             {
                 options.ValidationInterval = TimeSpan.FromMinutes(20);
@@ -97,16 +99,13 @@ namespace IdentityLearning
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            app.UseDeveloperExceptionPage();
+
             app.UseStaticFiles();
             // app.UseStatusCodePages();
             app.UseAuthentication();
 
             app.UseRouting();
-
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
@@ -115,7 +114,9 @@ namespace IdentityLearning
                     pattern: "{controller=home}/{action=index}/{id?}");
             });
 
-
+            //SeedData();
         }
+
+       
     }
 }

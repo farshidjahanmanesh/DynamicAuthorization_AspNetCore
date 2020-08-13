@@ -7,12 +7,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IdentityLearning.Controllers
 {
 
 
-    [Policy(persmission.BasePermission)]
+    [Authorize(Policy = nameof(persmission.BasePermission))]
     public class RoleManagerController : Controller
     {
         private readonly RoleManager<IdentityRole> roleManager;
@@ -22,7 +23,7 @@ namespace IdentityLearning.Controllers
             this.roleManager = roleManager;
         }
 
-        [Policy(persmission.RoleView)]
+        [Authorize(Policy = nameof(persmission.RoleView))]
         [MarkedToNavBar("نمایش نقش ها")]
         public IActionResult ShowRoles()
         {
@@ -31,7 +32,7 @@ namespace IdentityLearning.Controllers
         }
 
         [HttpGet]
-        [Policy(persmission.CreateRole)]
+        [Authorize(Policy = nameof(persmission.CreateRole))]
         [MarkedToNavBar("ایجاد یک نقش")]
         public IActionResult CreateRole()
         {
@@ -50,7 +51,7 @@ namespace IdentityLearning.Controllers
         }
 
 
-        [Policy(persmission.CreateRole)]
+        [Authorize(Policy = nameof(persmission.CreateRole))]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> CreateRole(CreateRoleViewModel role)
@@ -106,7 +107,7 @@ namespace IdentityLearning.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Policy(persmission.DeleteRole)]
+        [Authorize(Policy = nameof(persmission.DeleteRole))]
         public async Task<IActionResult> DeleteRole(string Id)
         {
             var Role = await roleManager.FindByIdAsync(Id);
@@ -120,7 +121,7 @@ namespace IdentityLearning.Controllers
         }
 
         [HttpGet]
-        [Policy(persmission.AccessLevelRole)]
+        [Authorize(Policy = nameof(persmission.AccessLevelRole))]
         public async Task<IActionResult> AccessLevelRole(string Id)
         {
 
@@ -167,7 +168,7 @@ namespace IdentityLearning.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Policy(persmission.AccessLevelRole)]
+        [Authorize(Policy = nameof(persmission.AccessLevelRole))]
         public async Task<IActionResult> AccessLevelRole(CreateRoleViewModel Role)
         {
             if (ModelState.IsValid)

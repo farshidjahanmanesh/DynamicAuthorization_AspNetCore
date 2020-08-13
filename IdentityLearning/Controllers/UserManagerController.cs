@@ -1,6 +1,7 @@
 ﻿using IdentityLearning.Infrastructure;
 using IdentityLearning.Models;
 using IdentityLearning.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace IdentityLearning.Controllers
 {
-    [Policy(persmission.BasePermission)]
+    [Authorize(Policy =nameof(persmission.BasePermission))]
     public class UserManagerController : Controller
     {
         private readonly UserManager<User> userManager;
@@ -26,7 +27,7 @@ namespace IdentityLearning.Controllers
 
 
 
-        [Policy(persmission.UserView)]
+        [Authorize(Policy = nameof(persmission.UserView))]
         [MarkedToNavBar("نمایش کاربران")]
         public IActionResult UsersView()
         {
@@ -45,8 +46,9 @@ namespace IdentityLearning.Controllers
         }
 
         [ValidateAntiForgeryToken]
-        [Policy(persmission.DeleteUser)]
+        [Authorize(Policy = nameof(persmission.DeleteUser))]
         [ServiceFilter(typeof(IsUserExistFilter))]
+        
         public async Task<IActionResult> DeleteUser(string id)
         {
             if (ModelState.IsValid)
@@ -64,7 +66,7 @@ namespace IdentityLearning.Controllers
         }
 
 
-        [Policy(persmission.UpdateUser)]
+        [Authorize(Policy = nameof(persmission.UpdateUser))]
         [ServiceFilter(typeof(IsUserExistFilter))]
         public async Task<IActionResult> UpdateUser(string id)
         {
@@ -89,7 +91,7 @@ namespace IdentityLearning.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Policy(persmission.UpdateUser)]
+        [Authorize(Policy = nameof(persmission.UpdateUser))]
         [ServiceFilter(typeof(IsUserExistFilter))]
         public async Task<IActionResult> UpdateUser(UserUpdateViewModel userUpdate)
         {
@@ -136,7 +138,7 @@ namespace IdentityLearning.Controllers
         }
 
 
-        [Policy(persmission.SetRoleTOUser)]
+        [Authorize(Policy = nameof(persmission.SetRoleTOUser))]
         [ServiceFilter(typeof(IsUserExistFilter))]
         public async Task<IActionResult> AccessLevelUser(string id)
         {
@@ -183,7 +185,7 @@ namespace IdentityLearning.Controllers
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        [Policy(persmission.SetRoleTOUser)]
+        [Authorize(Policy = nameof(persmission.SetRoleTOUser))]
         public async Task<IActionResult> AccessLevelUser(UserToRoleViewModel uv)
         {
             if (ModelState.IsValid)

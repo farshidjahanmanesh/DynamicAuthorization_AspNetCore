@@ -29,7 +29,7 @@ namespace IdentityLearning.Services
 
         static AuthorizeSystemError()
         {
-            
+
             var fields = typeof(AuthorizeSystemError).GetFields().ToList();
             foreach (var field in fields)
             {
@@ -38,6 +38,29 @@ namespace IdentityLearning.Services
         }
 
         public static List<string> Codes { get; set; } = new List<string>();
+
+        public static IdentityError[] GetErrors(IEnumerable<IdentityError> errors)
+        {
+            //List<IdentityError> result = new List<IdentityError>();
+            IdentityError[] result = new IdentityError[errors.Count()];
+
+            foreach (var item in errors)
+            {
+                if (AuthorizeSystemError.Codes.Any(x => x == item.Code))
+                {
+                    var fieldName = (string)typeof(AuthorizeSystemError).GetField(item.Code).GetValue(null);
+                    item.Description = fieldName;
+                    result.Append(item);
+                }
+                else
+                {
+                    result.Append(item);
+                }
+            }
+
+            return result;
+        }
+
 
     }
 
@@ -60,7 +83,7 @@ namespace IdentityLearning.Services
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
         private readonly IMailService mailService;
-       // private readonly IUrlHelper url;
+        // private readonly IUrlHelper url;
 
         public AccountService(UserManager<User> userManager, SignInManager<User> signInManager,
             IMailService mailService)
@@ -68,7 +91,7 @@ namespace IdentityLearning.Services
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.mailService = mailService;
-            
+
         }
 
 
@@ -103,7 +126,7 @@ namespace IdentityLearning.Services
             });
         }
 
-        public async Task<IdentityResult> CreateAccount(UserAccountViewModel userInfo, string protocol)
+        public async Task<IdentityResult> CreateAccount(UserAccountViewModel userInfo, string link)
         {
             var userDetail = new User()
             {
@@ -113,44 +136,53 @@ namespace IdentityLearning.Services
 
             };
             var createResult = await userManager.CreateAsync(userDetail, userInfo.Password);
+
             if (createResult.Errors.Count() > 0)
             {
-                List<IdentityError> errors = new List<IdentityError>();
-
-                foreach (var item in createResult.Errors)
+                IdentityError[] errors = GetErrors(createResult.Errors);
+                return IdentityResult.Failed(errors);
+            }
+            var user = await userManager.FindByEmailAsync(userInfo.Email);
+            if (link == null || link == "")
+            {
+                MailRequest mr = new MailRequest()
                 {
-                    if (AuthorizeSystemError.Codes.Any(x => x == item.Code))
-                    {
-                        var fieldName =(string) typeof(AuthorizeSystemError).GetField(item.Code).GetValue(null);
-                        errors.Add(new IdentityError()
-                        {
-                            Code=item.Code,
-                            Description=fieldName
-                        });
-                    }
+                    Body = link,
+                    Subject = "تاییدیه ایمیل",
+                    ToEmail = userInfo.Email
+                };
+                await mailService.SendEmailAsync(mr);
+            }
+            await userManager.AddClaimAsync(user, new Claim("UserName", userInfo.PersianName));
+
+
+            return IdentityResult.Success;
+
+
+
+        }
+
+
+        private IdentityError[] GetErrors(IEnumerable<IdentityError> errors)
+        {
+            //List<IdentityError> result = new List<IdentityError>();
+            IdentityError[] result = new IdentityError[errors.Count()];
+
+            foreach (var item in errors)
+            {
+                if (AuthorizeSystemError.Codes.Any(x => x == item.Code))
+                {
+                    var fieldName = (string)typeof(AuthorizeSystemError).GetField(item.Code).GetValue(null);
+                    item.Description = fieldName;
+                    result.Append(item);
+                }
+                else
+                {
+                    result.Append(item);
                 }
             }
-            return null;
-            //if (createResult.Succeeded)
-            //{
-            //    var user = await userManager.FindByEmailAsync(userInfo.Email);
-            //    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
-            //    var link = url.Action("ConfirmEmail", "account", new { token = token, email = userInfo.Email }, protocol);
-            //    await userManager.AddClaimAsync(user, new Claim("UserName", userInfo.PersianName));
-            //    MailRequest mr = new MailRequest()
-            //    {
-            //        Body = link,
-            //        Subject = "تاییدیه ایمیل",
-            //        ToEmail = userInfo.Email
-            //    };
-
-            //    await mailService.SendEmailAsync(mr);
-            //    return IdentityResult.Success;
-            //    // return RedirectToAction("login", "account");
-            //}
-
-
+            return result;
         }
 
     }

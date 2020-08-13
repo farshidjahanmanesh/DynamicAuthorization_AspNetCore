@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Reflection;
 using IdentityLearning.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IdentityLearning.ViewComponents
 {
@@ -32,38 +33,31 @@ namespace IdentityLearning.ViewComponents
             if (!User.Identity.IsAuthenticated)
             {
                 return View(accessLevel);
-                //  throw new Exception("User is not authenticated");
             }
-            //var userEntity = await userManager.FindByNameAsync(User.Identity.Name);
-
-            //var userRoles = await userManager.GetRolesAsync(userEntity);
-            //var claimsList = new List<Claim>();
-            //foreach (var item in userRoles)
-            //{
-            //    var RoleEntity = await roleManager.FindByNameAsync(item);
-            //    claimsList.AddRange(await roleManager.GetClaimsAsync(RoleEntity));
-            //}
             var claimsList = HttpContext.User.Claims;
             var assembly = Assembly.GetExecutingAssembly();
             var controllers = assembly.GetTypes().Where(x => x.Name.EndsWith("Controller"));
+
+
+           
 
 
             foreach (var item in controllers)
             {
                 bool checkControllerPolicy = true;
                 string persianControllerAccessname = "";
-                if (item.CustomAttributes.Any(c => c.AttributeType == typeof(PolicyAttribute)))
+                if (item.CustomAttributes.Any(c => c.AttributeType == typeof(AuthorizeAttribute)))
                 {
                     bool controllerMarkToShow = false;
 
-                    object[] policyAtts = item.GetCustomAttributes(typeof(PolicyAttribute), true);
+                    object[] policyAtts = item.GetCustomAttributes(typeof(AuthorizeAttribute), true);
                     if (item.CustomAttributes.Any(c => c.AttributeType == typeof(MarkedToNavBarAttribute)))
                     {
                         persianControllerAccessname = item.GetCustomAttribute<MarkedToNavBarAttribute>().name;
                         controllerMarkToShow = true;
                     }
 
-                    foreach (PolicyAttribute attItem in policyAtts)
+                    foreach (AuthorizeAttribute attItem in policyAtts)
                     {
                         var policyName = attItem.Policy;
                         if (!claimsList.Any(c => c.Type == "AccessLevel" && c.Value == policyName))
@@ -103,7 +97,7 @@ namespace IdentityLearning.ViewComponents
                         }
                         if (methodMarkToShow)
                         {
-                            object[] methodAtts = methodItem.GetCustomAttributes(typeof(PolicyAttribute), true);
+                            object[] methodAtts = methodItem.GetCustomAttributes(typeof(AuthorizeAttribute), true);
                             if (methodAtts == null || methodAtts.Length == 0)
                             {
                                 accessLevel.Add(new NavBarViewModel()
@@ -114,9 +108,9 @@ namespace IdentityLearning.ViewComponents
 
                                 });
                             }
-                            if (methodAtts.Count() == 1 && methodAtts[0] is PolicyAttribute)
+                            if (methodAtts.Count() == 1 && methodAtts[0] is AuthorizeAttribute)
                             {
-                                var justAuthorizeAtt = methodAtts[0] as PolicyAttribute;
+                                var justAuthorizeAtt = methodAtts[0] as AuthorizeAttribute;
 
                                 if (justAuthorizeAtt.Policy == "")
                                 {
@@ -129,7 +123,7 @@ namespace IdentityLearning.ViewComponents
                                     });
                                 }
                             }
-                            foreach (PolicyAttribute att in methodAtts)
+                            foreach (AuthorizeAttribute att in methodAtts)
                             {
                                 var policyName = att.Policy;
                                 if (claimsList.Any(c => c.Type == "AccessLevel" && c.Value == policyName))
