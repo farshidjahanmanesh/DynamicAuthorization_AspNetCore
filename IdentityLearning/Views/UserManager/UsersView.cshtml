@@ -1,7 +1,7 @@
 ﻿@model List<User>
 @{
     ViewData["Title"] = "UsersView";
-   // Layout = "~/Views/Shared/_Layout.cshtml";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <h1>کاربران سایت</h1>
 <div class="row gutters">
@@ -15,7 +15,7 @@
 
     }
 
-    @if(ViewData["DeleteSucc"]!=null && (bool)ViewData["DeleteSucc"]==true)
+    @if (ViewData["DeleteSucc"] != null && (bool)ViewData["DeleteSucc"] == true)
     {
         <div class="alert alert-success">
             حذف با موفقیت انجام شد
@@ -35,6 +35,8 @@
                             <th scope="col">حذف کاربر</th>
                             <th scope="col">تغییرات در کاربر</th>
                             <th scope="col">اعمال سطح دسترسی به کاربر</th>
+                            <th scope="col">وضعیت کاربر</th>
+                            <th scope="col">وضعیت فعال بودن ایمیل کاربر</th>
 
                         </tr>
                     </thead>
@@ -82,6 +84,26 @@
                                     </form>
 
                                 </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span style="cursor:pointer" id="@item.Id" class="badge badge-success" onclick="ChangeUserStatus(event)">فعال</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="cursor:pointer" id="@item.Id" class="badge badge-danger" onclick="ChangeUserStatus(event)">غیر فعال</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.EmailConfirmed)
+                                    {
+                                        <span class="badge badge-success">تایید شده</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger">تایید نشده</span>
+                                    }
+                                </td>
                             </tr>
 
                             counter++;
@@ -93,10 +115,41 @@
             </div>
 
         </div>
-        
+
     </div>
 
 
 
 </div>
 
+
+@section scripts{
+
+    <script>
+        function ChangeUserStatus(e) {
+             $.ajax({
+            type: "POST",
+            url: '@Url.Action("ChangeUserActivate","Account")', // Replace YOUR_CUSTOM_HANDLER with your handler.
+            contentType: "application/json; charset=utf-8",
+                 dataType: "json",
+                 data: JSON.stringify(e.target.id)
+             }).done(function (data) {
+                 if (data == "success") {
+                     if ($("#" + e.target.id).hasClass("badge-success")) {
+                         $("#" + e.target.id).removeClass("badge-success");
+                         $("#" + e.target.id).addClass("badge-danger");
+                          $("#" + e.target.id).text("غیر فعال");
+                     } else {
+                         $("#" + e.target.id).removeClass("badge-danger");
+                         $("#" + e.target.id).addClass("badge-success");
+                         $("#" + e.target.id).text("فعال");
+                     }
+                 }
+        });
+
+        }
+
+
+    </script>
+
+}

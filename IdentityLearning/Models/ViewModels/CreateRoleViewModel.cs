@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using IdentityLearning.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace IdentityLearning.Models.ViewModels
 {
+    [CheckXss]
     public class CreateRoleViewModel
     {
         [Required(ErrorMessage ="لطفا نام نقش را وارد کنید")]

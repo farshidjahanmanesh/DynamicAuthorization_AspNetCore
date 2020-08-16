@@ -1,6 +1,112 @@
-﻿
+﻿@model GraphDataViewModel
 @{
     ViewData["Title"] = "Index";
     //Layout = "_layout";
 }
 
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <!-- Row start -->
+            <div class="row gutters">
+                <div class="col-xl-6 col-lg-4 col-md-4 col-sm-4 col-12">
+                    <div class="info-tiles">
+                        <div class="info-icon">
+                            <i class="icon-account_circle"></i>
+                        </div>
+                        <div class="stats-detail">
+                            <h3>185k</h3>
+                            <p>تعداد کاربران</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-6 col-lg-4 col-md-4 col-sm-4 col-12">
+                    <div class="info-tiles">
+                        <div class="info-icon">
+                            <i class="icon-visibility"></i>
+                        </div>
+                        <div class="stats-detail">
+                            <h3>7500</h3>
+                            <p>تعداد بازدید ها</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-6 col-lg-4 col-md-4 col-sm-4 col-12">
+                    <div class="info-tiles">
+                        <div class="info-icon secondary">
+                            <i class="icon-check_circle"></i>
+                        </div>
+                        <div class="stats-detail">
+                            <h3>250</h3>
+                            <p>تعداد لاگ ها</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- Row ends -->
+        </div>
+
+        @if (Model.DeviceCheckerSerialize != null)
+        {
+            <partial name="_DeviceGraph" />
+        }
+        @if (Model.BrowserVisitorSerialize != null)
+        {
+            <partial name="_BrowserGraph" />
+        }
+        @if (Model.ViewerVisitorGraphSerialize != null)
+        {
+            <partial name="_LastWeekGraph" />
+        }
+
+
+
+    </div>
+
+
+@section scripts{
+    <script type="text/javascript" src="~/vendor/apex/examples/area/basic-area-graph.js"></script>
+    <script src="/vendor/morris/morris.min.js"></script>
+    <script src="/vendor/morris/raphael-min.js"></script>
+    <script src="/vendor/apex/apexcharts.min.js"></script>
+
+    <script type="text/javascript">
+        window.addEventListener("load", function () {
+
+
+
+
+            @if(Model.ViewerVisitorGraphSerialize!=null)
+            {
+                <text>
+                var jsondata = '@Html.Raw( JsonEncodedText.Encode(Model.ViewerVisitorGraphSerialize))';
+                var data = JSON.parse(jsondata);
+                ViewerVisitorGraph(data);
+
+                </text>
+            }
+            @if(Model.DeviceCheckerSerialize!=null)
+            {
+                <text>
+                var jsondata = '@Html.Raw( JsonEncodedText.Encode(Model.DeviceCheckerSerialize))';
+                var data = JSON.parse(jsondata);
+                DeviceChecker(data);
+                </text>
+            }
+
+                @if (Model.BrowserVisitorSerialize!=null)
+                {
+                    <text>
+                        var jsondata = '@Html.Raw( JsonEncodedText.Encode(Model.BrowserVisitorSerialize))';
+                        var data = JSON.parse(jsondata);
+                        BrowserGraph(data);
+                    </text>
+                }
+
+
+
+        });
+    </script>
+}

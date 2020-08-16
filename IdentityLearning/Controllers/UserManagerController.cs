@@ -51,6 +51,7 @@ namespace IdentityLearning.Controllers
         
         public async Task<IActionResult> DeleteUser(string id)
         {
+            id = CheckXss.CheckIt(id);
             if (ModelState.IsValid)
             {
                 var user = await userManager.FindByIdAsync(id);
@@ -70,6 +71,7 @@ namespace IdentityLearning.Controllers
         [ServiceFilter(typeof(IsUserExistFilter))]
         public async Task<IActionResult> UpdateUser(string id)
         {
+            id = CheckXss.CheckIt(id);
             if (ModelState.IsValid)
             {
                 var user = await userManager.FindByIdAsync(id);
@@ -142,6 +144,7 @@ namespace IdentityLearning.Controllers
         [ServiceFilter(typeof(IsUserExistFilter))]
         public async Task<IActionResult> AccessLevelUser(string id)
         {
+            id = CheckXss.CheckIt(id);
             if (ModelState.IsValid)
             {
                 if (TempData["Success"]!=null)

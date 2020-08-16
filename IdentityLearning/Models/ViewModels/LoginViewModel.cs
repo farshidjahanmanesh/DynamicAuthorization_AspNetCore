@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IdentityLearning.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace IdentityLearning.Models.ViewModels
 {
+    [CheckXss]
     public class LoginViewModel
     {
         [Required(ErrorMessage ="لطفا ایمیل را وارد کنید")]

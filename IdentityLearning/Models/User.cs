@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using IdentityLearning.Models.Entities;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -101,6 +102,9 @@ namespace IdentityLearning.Models
     {
         public string AboutMe { get; set; }
         public string PersianName { get; set; }
+        public string ProfilePicture { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsExternalLogin { get; set; }
 
     }
     public class Role : IdentityRole
@@ -112,6 +116,9 @@ namespace IdentityLearning.Models
 
     public class TestIdentityDbContext : IdentityDbContext<User>
     {
+        public DbSet<ViewerCounter> ViewerCounter { get; set; }
+        public DbSet<DeviceCounter> DeviceCounter { get; set; }
+        public DbSet<BrowserCounter> BrowserCounter { get; set; }
         public TestIdentityDbContext(DbContextOptions options) : base(options)
         {
 

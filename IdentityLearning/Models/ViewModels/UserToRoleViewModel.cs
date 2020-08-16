@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using IdentityLearning.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace IdentityLearning.Models.ViewModels
 {
+    [CheckXss]
     public class UserToRoleViewModel
     {
         [Required]

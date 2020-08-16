@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using IdentityLearning.Infrastructure;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityLearning.Models.ViewModels
 {
+    [CheckXss]
     public class ChangePasswrodViewModel
     {
         [Required]
@@ -19,5 +21,7 @@ namespace IdentityLearning.Models.ViewModels
         [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
         [Display(Name ="رمز عب")]
         public string OldPassword { get; set; }
+
+        public bool IsExternal { get; set; }
     }
 }

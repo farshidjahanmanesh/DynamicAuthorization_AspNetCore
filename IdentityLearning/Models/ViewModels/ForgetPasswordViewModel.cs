@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using IdentityLearning.Infrastructure;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityLearning.Models.ViewModels
 {
+    [CheckXss]
     public class ForgetPasswordViewModel
     {
         [Required(ErrorMessage = "لطفا {0} را وارد کنید")]

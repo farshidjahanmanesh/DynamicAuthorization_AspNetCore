@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Backend_React;
 using IdentityLearning.Infrastructure;
 using IdentityLearning.Models;
 using IdentityLearning.Models.ViewModels;
@@ -13,20 +15,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityLearning.Controllers
 {
-   // [AllowAnonymous]
+    // [AllowAnonymous]
     public class AccountController : Controller
     {
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
         private readonly IMailService mailService;
-        private readonly AccountService accountService;
         public AccountController(UserManager<User> userManager, SignInManager<User> signInManager,
-            IMailService mailService, AccountService accountService)
+            IMailService mailService)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.mailService = mailService;
-            this.accountService = accountService;
         }
 
         [AllowAnonymous]
@@ -34,6 +34,7 @@ namespace IdentityLearning.Controllers
         [MarkedToNavBar("ورود با حساب کاربری جدید")]
         public IActionResult Login(string returnUrl)
         {
+            returnUrl = CheckXss.CheckIt(returnUrl);
             ViewBag.returnUrl = returnUrl;
             return View();
         }
@@ -48,6 +49,8 @@ namespace IdentityLearning.Controllers
                 ViewBag.returnUrl = login.ReturnUrl;
                 return View(login);
             }
+
+
             User user = await userManager.FindByEmailAsync(login.Email);
             if (object.ReferenceEquals(null, user))
             {
@@ -61,6 +64,9 @@ namespace IdentityLearning.Controllers
                 return View("EmailConfirm");
             }
             await signInManager.SignOutAsync();
+
+            if (!user.IsActive)
+                return View("ActivateAccount");
 
             var result = await signInManager.PasswordSignInAsync(
             user, login.Password, login.RememberMe, false);
@@ -86,6 +92,7 @@ namespace IdentityLearning.Controllers
 
         public IActionResult AccessDenied(string returnUrl)
         {
+            returnUrl = CheckXss.CheckIt(returnUrl);
             return View(model: returnUrl);
         }
 
@@ -106,19 +113,20 @@ namespace IdentityLearning.Controllers
 
                 var userDetail = new User()
                 {
-                    PersianName = uv.PersianName,
-                    Email = uv.Email,
-                    UserName = uv.Email
-
+                    PersianName = uv.PersianName.Trim(),
+                    Email = uv.Email.Trim(),
+                    UserName = uv.Email.Trim(),
+                    IsActive = true,
+                    IsExternalLogin = false
                 };
-                var createResult = await userManager.CreateAsync(userDetail, uv.Password);
+                var createResult = await userManager.CreateAsync(userDetail, uv.Password.Trim());
 
                 if (createResult.Succeeded)
                 {
                     var user = await userManager.FindByEmailAsync(uv.Email);
+                    await userManager.AddClaimAsync(user, new Claim("UserName", uv.PersianName.Trim()));
                     var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
                     var link = Url.Action("ConfirmEmail", "account", new { token = token, email = uv.Email }, Request.Scheme);
-                    await userManager.AddClaimAsync(user, new Claim("UserName", uv.PersianName));
                     MailRequest mr = new MailRequest()
                     {
                         Body = link,
@@ -127,13 +135,15 @@ namespace IdentityLearning.Controllers
                     };
 
                     await mailService.SendEmailAsync(mr);
-                    return RedirectToAction("login", "account");
+                    return View("EmailConfirm");
                 }
-
-                foreach (var item in createResult.Errors)
-                {
-                    ModelState.AddModelError(item.Code, item.Description);
-                }
+                var persianErrors = AuthorizeSystemError.GetErrors(createResult.Errors);
+                if (persianErrors != null)
+                    foreach (var item in persianErrors)
+                    {
+                        if (item.Code != "DuplicateUserName")
+                            ModelState.AddModelError(item.Code, item.Description);
+                    }
 
             }
             return View(uv);
@@ -141,7 +151,7 @@ namespace IdentityLearning.Controllers
 
         }
 
-       // [Authorize]
+        // [Authorize]
         [MarkedToNavBar("تغییر رمز عبور")]
         public async Task<IActionResult> ChangePassword()
         {
@@ -152,13 +162,14 @@ namespace IdentityLearning.Controllers
                 UserId = user.Id,
                 ConfirmPassword = "",
                 OldPassword = "",
-                Password = ""
+                Password = "",
+                IsExternal = user.IsExternalLogin
             };
             return View(userPassword);
         }
 
         [HttpPost]
-       // [Authorize]
+        // [Authorize]
         [MarkedToNavBar("تغییر رمز عبور")]
         public async Task<IActionResult> ChangePassword(ChangePasswrodViewModel cp)
         {
@@ -182,6 +193,29 @@ namespace IdentityLearning.Controllers
                 }
 
             }
+            //for when user dont have password
+            //becuase using external login
+            if (cp.OldPassword == null || cp.OldPassword == "")
+                if (ModelState.ErrorCount == 1)
+                {
+                    var oldPassState = ModelState[nameof(cp.OldPassword)];
+                    //just oldpassword have error
+                    if (oldPassState.Errors.Count == 1)
+                    {
+                        var user = await userManager.FindByIdAsync(cp.UserId);
+                        if (object.ReferenceEquals(user.PasswordHash, null))
+                        {
+                            var changePasswordResult = await userManager.AddPasswordAsync(user, cp.Password);
+                            if (changePasswordResult.Succeeded)
+                                ViewData["success"] = true;
+                            else
+                                ViewData["faild"] = true;
+                            ModelState.Clear();
+                            return View(cp);
+                        }
+                    }
+                }
+
 
             return View(cp);
         }
@@ -197,6 +231,7 @@ namespace IdentityLearning.Controllers
         [HttpPost]
         public async Task<IActionResult> ForgetPassword(string email)
         {
+            email = CheckXss.CheckIt(email);
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
             {
@@ -216,9 +251,12 @@ namespace IdentityLearning.Controllers
             return View();
         }
 
-     //   [Authorize]
+        [AllowAnonymous]
+        //   [Authorize]
         public IActionResult ResetPassword(string email, string token)
         {
+            email = CheckXss.CheckIt(email);
+            token = CheckXss.CheckIt(token);
             var fp = new ForgetPasswordViewModel()
             {
                 Token = token,
@@ -227,7 +265,8 @@ namespace IdentityLearning.Controllers
             return View(fp);
         }
 
-     //   [Authorize]
+        [AllowAnonymous]
+        //   [Authorize]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ForgetPasswordViewModel fp)
@@ -261,6 +300,8 @@ namespace IdentityLearning.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string email, string token)
         {
+            email = CheckXss.CheckIt(email);
+            token = CheckXss.CheckIt(token);
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
                 return NotFound();
@@ -296,55 +337,65 @@ namespace IdentityLearning.Controllers
             ExternalLoginInfo info = await signInManager.GetExternalLoginInfoAsync();
             if (info == null)
                 return RedirectToAction(nameof(Login));
+            var userEmail = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var user = await userManager.FindByEmailAsync(userEmail);
+
+            if (user != null)
+                if (!user.IsActive)
+                    return View("ActivateAccount");
+
             var result = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
 
             if (result.Succeeded)
-                return RedirectToAction("index", "home");
+            {
+                if (!user.EmailConfirmed)
+                {
+                    user.EmailConfirmed = true;
+                    await userManager.UpdateAsync(user);
+                }
 
-            var userEmail = info.Principal.FindFirstValue(ClaimTypes.Email);
-            var user = await userManager.FindByEmailAsync(userEmail);
+                if (user != null)
+                    if (!user.IsActive)
+                        return View("ActivateAccount");
+
+                return RedirectToAction("index", "home");
+            }
+
+
+
             if (user == null)
             {
                 var createUser = new User
                 {
                     Email = userEmail,
                     UserName = userEmail,
-
+                    IsExternalLogin = true,
+                    IsActive = true,
+                    EmailConfirmed = true
                 };
-                var pass =string.Concat(Guid.NewGuid().ToString().Take(10));
-                var createResult = await userManager.CreateAsync(createUser, pass);
+                // var pass =string.Concat(Guid.NewGuid().ToString().Take(10));
+                var createResult = await userManager.CreateAsync(createUser);
                 if (!createResult.Succeeded)
                     return NotFound();
 
                 user = await userManager.FindByEmailAsync(userEmail);
                 await signInManager.SignInAsync(user, true);
-                
+
+
 
                 var loginResult = await userManager.AddLoginAsync(user, info);
 
-                try
-                {
-                    var bodyRequest = new StringBuilder();
-                    bodyRequest.AppendLine($"حساب کاربری شما با ایمیل {pass} و رمز عبور {userEmail} در سایت فعال شده است.");
-                    bodyRequest.AppendLine("از این پس میتوانید علاوه بر ورود به سایت از طریق حساب کاربری جیمیل ، از این طریق نیز به سایت وارد شوید");
-                    bodyRequest.AppendLine("با تشکر از شما.");
-                    var mail = new MailRequest()
-                    {
-                        Subject = "حساب کاربری فعال شد",
-                        ToEmail = userEmail,
-                        Body = bodyRequest.ToString()
-                    };
-                    await mailService.SendEmailAsync(mail);
-                }
-                catch (Exception)
-                {
-
-                }
-              
                 return RedirectToAction("index", "home");
             }
             else
             {
+                if (!user.EmailConfirmed)
+                {
+                    user.EmailConfirmed = true;
+                    await userManager.UpdateAsync(user);
+                }
+
+
                 var loginResult = await userManager.AddLoginAsync(user, info);
                 if (loginResult.Succeeded)
                 {
@@ -368,7 +419,8 @@ namespace IdentityLearning.Controllers
                 Email = user.Email,
                 Id = user.Id,
                 PersianName = user.PersianName,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                ProfileImageUrl = string.Format("/images/profiles/{0}", user.ProfilePicture)
             };
 
             return View(userModel);
@@ -376,7 +428,7 @@ namespace IdentityLearning.Controllers
 
         //[Authorize]
         [HttpPost]
-        public async Task<IActionResult> EditProfile(UserUpdateViewModel up)
+        public async Task<IActionResult> EditProfile(UserUpdateViewModel up, [FromServices]FileUpload fileUpload)
         {
             if (!ModelState.IsValid)
                 return View(up);
@@ -398,11 +450,15 @@ namespace IdentityLearning.Controllers
                 }
 
             }
-            var takePersianName = user.PersianName;
-            user.PersianName = up.PersianName;
-            user.AboutMe = up.AboutMe;
-            user.PhoneNumber = up.PhoneNumber;
+            var takePersianName = user.PersianName.Trim();
+            var takeProfilePicture = user.ProfilePicture;
+            user.PersianName = up.PersianName.Trim();
+            user.AboutMe = up.AboutMe?.Trim();
+            user.PhoneNumber = up.PhoneNumber.Fa2En();
 
+            string locUplaod = fileUpload.UploadedProfile(up.ProfileImage, takeProfilePicture);
+            user.ProfilePicture = locUplaod;
+            up.ProfileImageUrl = locUplaod;
             var updateUser = await userManager.UpdateAsync(user);
             if (!updateUser.Succeeded)
             {
@@ -410,12 +466,57 @@ namespace IdentityLearning.Controllers
                 return View(up);
             }
             ViewData["success"] = true;
-            var r = await userManager.ReplaceClaimAsync(user, new Claim("UserName", takePersianName),
-                new Claim("UserName", user.PersianName));
+            if (user.ProfilePicture == null)
+            {
+                if (takeProfilePicture != null && takeProfilePicture != "" && takeProfilePicture != "null")
+                    await userManager.RemoveClaimAsync(user, new Claim("ProfilePicture", takeProfilePicture));
+            }
+            else
+            {
+                if (takeProfilePicture == null || takeProfilePicture == "" || takeProfilePicture == "null")
+                {
+                    var r = await userManager.AddClaimAsync(user,
+                  new Claim("ProfilePicture", user.ProfilePicture));
+                }
+                else
+                {
+                    var r = await userManager.ReplaceClaimAsync(user, new Claim("ProfilePicture", takeProfilePicture),
+                   new Claim("ProfilePicture", user.ProfilePicture));
+                }
 
+            }
+
+            if (takePersianName == null || takePersianName == "" || takePersianName == "null")
+            {
+                var r = await userManager.AddClaimAsync(user,
+               new Claim("UserName", user.PersianName));
+
+            }
+            else
+            {
+                var r = await userManager.ReplaceClaimAsync(user, new Claim("UserName", takePersianName),
+               new Claim("UserName", user.PersianName));
+
+            }
+
+            await signInManager.RefreshSignInAsync(user);
             return View(up);
 
-            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> ChangeUserActivate([FromBody]string userId)
+        {
+            userId = CheckXss.CheckIt(userId);
+            var user = await userManager.FindByIdAsync(userId);
+            if (object.ReferenceEquals(user, null))
+                return Json("failed");
+            user.IsActive = user.IsActive == true ? false : true;
+            var updateResult = await userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+                return Json("failed");
+
+            return Json("success");
         }
     }
 }

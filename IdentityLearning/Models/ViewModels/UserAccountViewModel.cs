@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using IdentityLearning.Infrastructure;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityLearning.Models.ViewModels
 {
+    [CheckXss]
     public class UserAccountViewModel
     {
         [Required(ErrorMessage ="لطفا {0} خود را وارد کنید")]
@@ -19,6 +21,7 @@ namespace IdentityLearning.Models.ViewModels
         public string ConfirmPassword { get; set; }
 
         [Required(ErrorMessage = "لطفا {0} خود را وارد کنید")]
+        [Display(Name ="نام کاربری")]
         public string PersianName { get; set; }
 
     }

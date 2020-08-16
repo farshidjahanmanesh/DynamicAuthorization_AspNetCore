@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using IdentityLearning.Infrastructure;
 
 namespace IdentityLearning.Controllers
 {
@@ -110,6 +111,7 @@ namespace IdentityLearning.Controllers
         [Authorize(Policy = nameof(persmission.DeleteRole))]
         public async Task<IActionResult> DeleteRole(string Id)
         {
+            Id = CheckXss.CheckIt(Id);
             var Role = await roleManager.FindByIdAsync(Id);
             if (Role != null)
             {
@@ -124,7 +126,7 @@ namespace IdentityLearning.Controllers
         [Authorize(Policy = nameof(persmission.AccessLevelRole))]
         public async Task<IActionResult> AccessLevelRole(string Id)
         {
-
+            Id = CheckXss.CheckIt(Id);
             if (TempData["success"] != null)
             {
                 ViewBag.Success = true;
@@ -229,6 +231,7 @@ namespace IdentityLearning.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateRole(string Id)
         {
+            Id = CheckXss.CheckIt(Id);
             var RoleEntity = await roleManager.FindByIdAsync(Id);
             if (RoleEntity == null)
                 return NotFound();

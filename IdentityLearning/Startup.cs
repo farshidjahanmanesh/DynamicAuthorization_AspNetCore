@@ -70,7 +70,6 @@ namespace IdentityLearning
             //services.AddScoped<IAuthorizationService, PolicyAuthorize>();
             services.AddAuthorization(config =>
             {
-
                 var type = typeof(persmission);
                 var members = type.GetFields().Where(x => x.FieldType == typeof(persmission));
                 foreach (var item in members)
@@ -83,6 +82,7 @@ namespace IdentityLearning
 
             services.AddAuthentication().AddGoogle(config =>
             {
+
                 config.ClientId = "933619901017-lvcj1k09vetbbfa3a4lg4aln1dtsqg8h.apps.googleusercontent.com";
                 config.ClientSecret = "PW79CzRq1NwQccZxGVpVfnfD";
                 config.SignInScheme = IdentityConstants.ExternalScheme;
@@ -90,7 +90,8 @@ namespace IdentityLearning
             });
             services.ConfigureApplicationCookie(c =>
             {
-
+                c.AccessDeniedPath = "/account/AccessDenied";
+                c.LoginPath = "/account/login";
                 c.ExpireTimeSpan = TimeSpan.FromMinutes(30);
                 c.Cookie.Name = "Authorize";
                 c.SlidingExpiration = true;
@@ -102,14 +103,23 @@ namespace IdentityLearning
             });
 
             services.AddScoped<IsUserExistFilter>();
-            services.AddScoped<AccountService>();
-
-
+            services.AddScoped<FileUpload>();
+            services.AddHostedService<TimedHostedService>();
+          //  services.AddTransient<test>();
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseDeveloperExceptionPage();
-
+            if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+            else
+            {
+                app.UseExceptionHandler("/error");
+                //force using https
+                app.UseHsts();
+            }
+            app.UseDeviceChecker();
+            app.UseBrowserChecker();
+            app.UseCheckIp();
             app.UseStaticFiles();
             // app.UseStatusCodePages();
             app.UseAuthentication();

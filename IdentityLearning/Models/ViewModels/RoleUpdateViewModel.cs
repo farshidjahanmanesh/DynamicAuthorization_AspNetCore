@@ -1,8 +1,10 @@
-﻿using System.ComponentModel;
+﻿using IdentityLearning.Infrastructure;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace IdentityLearning.Models.ViewModels
 {
+    [CheckXss]
     public class RoleUpdateViewModel
     {
         [Required]

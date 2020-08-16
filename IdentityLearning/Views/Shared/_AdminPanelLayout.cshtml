@@ -33,11 +33,11 @@
     </style>
 
     <!-- Loading starts -->
-    <div id="loading-wrapper">
-        <div class="spinner-border" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-    </div>
+    @*<div id="loading-wrapper">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>*@
     <!-- Loading ends -->
     <!-- *************
         ************ Header section start *************
@@ -48,9 +48,9 @@
             <a href="index.html" class="logo">
                 <img src="img/logo.png" alt="Wafi Admin Dashboard" />
             </a>
-            <a href="#" class="quick-links-btn" data-toggle="tooltip" data-placement="right" title="" data-original-title="Quick Links">
-                <i class="icon-menu1"></i>
-            </a>
+            @*<a href="#" class="quick-links-btn" data-toggle="tooltip" data-placement="right" title="" data-original-title="Quick Links">
+                    <i class="icon-menu1"></i>
+                </a>*@
         </div>
         <div class="header-items">
             <!-- Custom search start -->
@@ -68,13 +68,34 @@
                         <a href="#" id="userSettings" class="user-settings" data-toggle="dropdown" aria-haspopup="true">
 
                             <span class="user-name">@User.FindFirst("UserName")?.Value</span>
-                            <span class="avatar"><span class="status busy"></span></span>
+                            <span class="avatar">
+                                @if (User.FindFirst("ProfilePicture") == null)
+                                {
+                                    <img src="/img/img10.jpg" alt="Admin Template" />
+                                }
+                                else
+                                {
+                                    <img src="/images/profiles/@User.FindFirst("ProfilePicture").Value" alt="Admin Template" />
+                                }
+
+                                <span class="status busy"></span>
+                            </span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userSettings">
                             <div class="header-profile-actions">
                                 <div class="header-user-profile">
                                     <div class="header-user">
-                                        <img src="img/user.png" alt="Admin Template" />
+                                        @if (User.FindFirst("ProfilePicture") == null)
+                                        {
+                                            <img src="/img/img10.jpg" alt="Admin Template" />
+                                        }
+                                        else
+                                        {
+                                            <img src="/images/profiles/@User.FindFirst("ProfilePicture").Value" alt="Admin Template" />
+                                        }
+
+
+
                                     </div>
                                     <h5>@User.FindFirst("UserName")?.Value</h5>
                                     <p>@User.FindFirst(ClaimTypes.Role)?.Value</p>
@@ -103,7 +124,7 @@
     </header>
     <!-- Header end -->
     <!-- Screen overlay start -->
-    <div class="screen-overlay"></div>
+    @*<div class="screen-overlay"></div>*@
     <!-- Screen overlay end -->
     <!-- Quicklinks box start -->
     @*<div class="quick-links-box">
@@ -204,5 +225,8 @@
     <script src="/js/main.js"></script>
 
 
+    <script src="vendor/apex/apexcharts.min.js"></script>
+
+    @RenderSection("scripts", false)
 </body>
 </html>

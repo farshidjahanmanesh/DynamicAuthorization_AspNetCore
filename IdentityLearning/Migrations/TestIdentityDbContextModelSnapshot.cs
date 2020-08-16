@@ -19,6 +19,84 @@ namespace IdentityLearning.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("IdentityLearning.Models.Entities.BrowserCounter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Chorome")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Edge")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FireFox")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IE")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Other")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Safari")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BrowserCounter");
+                });
+
+            modelBuilder.Entity("IdentityLearning.Models.Entities.DeviceCounter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Android")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Desktop")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IOS")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Other")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeviceCounter");
+                });
+
+            modelBuilder.Entity("IdentityLearning.Models.Entities.ViewerCounter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ViewerCounter");
+                });
+
             modelBuilder.Entity("IdentityLearning.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -39,6 +117,12 @@ namespace IdentityLearning.Migrations
                         .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsExternalLogin")
                         .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
@@ -66,6 +150,9 @@ namespace IdentityLearning.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("ProfilePicture")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
