@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+using SharedServices.Context;
+
 namespace IdentityLearning.Migrations
 {
     [DbContext(typeof(TestIdentityDbContext))]

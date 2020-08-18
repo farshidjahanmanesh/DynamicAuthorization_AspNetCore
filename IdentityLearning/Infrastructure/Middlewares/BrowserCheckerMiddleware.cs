@@ -1,12 +1,11 @@
-﻿using IdentityLearning.Models;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using SharedServices.GraphModel;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using UAParser;
 
-namespace IdentityLearning.Infrastructure
+namespace Middlewares
 {
 
     public static class BrowserCheckerMiddlewareExtensions
@@ -20,7 +19,7 @@ namespace IdentityLearning.Infrastructure
     public class BrowserCheckerMiddleware
     {
         private readonly RequestDelegate next;
-        public static BrowserGraphData Data { get; } = new BrowserGraphData();
+        public static BrowserGraph Data { get; } = new BrowserGraph();
         public BrowserCheckerMiddleware(RequestDelegate _next)
         {
             next = _next;
@@ -86,7 +85,7 @@ namespace IdentityLearning.Infrastructure
 
                 }
             }
-           
+
             await next(context);
         }
     }
@@ -94,6 +93,6 @@ namespace IdentityLearning.Infrastructure
 
 
 
-    
+
 
 }

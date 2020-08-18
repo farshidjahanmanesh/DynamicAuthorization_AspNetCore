@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 
-namespace IdentityLearning.Infrastructure
+namespace MailServices
 {
 
     public interface IMailService

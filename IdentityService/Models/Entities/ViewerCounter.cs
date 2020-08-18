@@ -1,10 +1,11 @@
 ﻿using System;
 
-namespace IdentityLearning.Models.Entities
+namespace SharedServices.Models.Entities
 {
-    public class DeviceCounter:DeviceGraphData
+    public class ViewerCounter
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
+        public int Count { get; set; }
     }
 }

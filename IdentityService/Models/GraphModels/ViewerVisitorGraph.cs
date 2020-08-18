@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace IdentityLearning.Models
+namespace SharedServices.GraphModel
 {
     [Serializable]
-    public class ViewerVisitorGraphData
+    public class ViewerVisitorGraph
     {
-        public ViewerVisitorGraphData()
+        public ViewerVisitorGraph()
         {
             Counts = new List<int>();
             Dates = new List<string>();

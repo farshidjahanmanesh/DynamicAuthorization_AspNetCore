@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace IdentityLearning.Infrastructure
+namespace Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class ImageRequiredAttribute:ValidationAttribute

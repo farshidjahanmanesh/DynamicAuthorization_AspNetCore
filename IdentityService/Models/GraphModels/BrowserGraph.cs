@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace IdentityLearning.Models
+namespace SharedServices.GraphModel
 {
     [Serializable]
-    public class BrowserGraphData
+    public class BrowserGraph
     {
         public int FireFox { get; set; }
         public int Safari { get; set; }

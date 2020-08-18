@@ -1,10 +1,7 @@
 ﻿using IdentityLearning.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Reflection;
 using IdentityLearning.Models.ViewModels;
@@ -13,24 +10,20 @@ using SharedServices.Models.IdentityModels;
 
 namespace IdentityLearning.ViewComponents
 {
-    public class NavBarViewComponent : ViewComponent
+    public class TopMenuViewComponent : ViewComponent
     {
-        private readonly UserManager<ApplicationUser> userManager;
-        private readonly RoleManager<IdentityRole> roleManager;
-
-        public NavBarViewComponent(UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+        public TopMenuViewComponent()
         {
-            this.userManager = userManager;
-            this.roleManager = roleManager;
+
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var accessLevel = new List<NavBarViewModel>();
+
+            var accessLevel = new HashSet<NavBarViewModel>();
             if (!User.Identity.IsAuthenticated)
             {
-                return View(accessLevel);
+                return View(new List<IGrouping<string, NavBarViewModel>>());
             }
             var claimsList = HttpContext.User.Claims;
             var assembly = Assembly.GetExecutingAssembly();
@@ -78,7 +71,6 @@ namespace IdentityLearning.ViewComponents
                                 {
                                     if (object.ReferenceEquals(att.Policy, null))
                                         continue;
-
                                     if (!claimsList.Any(x => x.Type == "AccessLevel"
                                      && x.Value == att.Policy))
                                     {
@@ -116,7 +108,7 @@ namespace IdentityLearning.ViewComponents
                     //methods should be show in menu
                     var methods = controller.GetMethods().Where(m => m.CustomAttributes.Any
                     (z => z.AttributeType == typeof(MarkedToNavBarAttribute))
-                    && !m.CustomAttributes.Any(z => z.AttributeType == typeof(HttpPostAttribute))).ToList();
+                    &&!m.CustomAttributes.Any(z=>z.AttributeType==typeof(HttpPostAttribute))).ToList();
 
                     foreach (var method in methods)
                     {
@@ -164,8 +156,12 @@ namespace IdentityLearning.ViewComponents
 
 
 
-            
-            return View(accessLevel);
+            var groupByControllerNames = accessLevel.GroupBy(c => c.ControllerName);
+
+
+            return View(groupByControllerNames);
+
         }
+
     }
 }

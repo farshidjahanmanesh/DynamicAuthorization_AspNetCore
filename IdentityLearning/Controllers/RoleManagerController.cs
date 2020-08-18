@@ -9,12 +9,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using IdentityLearning.Infrastructure;
+using SharedServices.Models.IdentityModels;
 
 namespace IdentityLearning.Controllers
 {
 
 
-    [Authorize(Policy = nameof(persmission.BasePermission))]
+    [Authorize(Policy = nameof(PersmissionsEnum.BasePermission))]
     public class RoleManagerController : Controller
     {
         private readonly RoleManager<IdentityRole> roleManager;
@@ -24,16 +25,16 @@ namespace IdentityLearning.Controllers
             this.roleManager = roleManager;
         }
 
-        [Authorize(Policy = nameof(persmission.RoleView))]
+        [Authorize(Policy = nameof(PersmissionsEnum.RoleView))]
         [MarkedToNavBar("نمایش نقش ها")]
         public IActionResult ShowRoles()
         {
-            var roles = roleManager.Roles.ToList();
+            var roles = roleManager.Roles.Where(c=>c.Name!= "SuperAdmin").ToList();
             return View(roles);
         }
 
         [HttpGet]
-        [Authorize(Policy = nameof(persmission.CreateRole))]
+        [Authorize(Policy = nameof(PersmissionsEnum.CreateRole))]
         [MarkedToNavBar("ایجاد یک نقش")]
         public IActionResult CreateRole()
         {
@@ -52,7 +53,7 @@ namespace IdentityLearning.Controllers
         }
 
 
-        [Authorize(Policy = nameof(persmission.CreateRole))]
+        [Authorize(Policy = nameof(PersmissionsEnum.CreateRole))]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> CreateRole(CreateRoleViewModel role)
@@ -75,7 +76,7 @@ namespace IdentityLearning.Controllers
                     var RoleEntity = await roleManager.FindByNameAsync(role.RoleName);
                     foreach (var item in role.PermissionIn)
                     {
-                        if (Enum.IsDefined(typeof(persmission), item.Value))
+                        if (Enum.IsDefined(typeof(PersmissionsEnum), item.Value))
                         {
                             if (item.Selected == false)
                                 await roleManager.RemoveClaimAsync(RoleEntity, new Claim("AccessLevel", item.Value));
@@ -84,7 +85,7 @@ namespace IdentityLearning.Controllers
 
                     foreach (var item in role.PermissionOut)
                     {
-                        if (Enum.IsDefined(typeof(persmission), item.Value))
+                        if (Enum.IsDefined(typeof(PersmissionsEnum), item.Value))
                         {
                             if (item.Selected == true)
                                 await roleManager.AddClaimAsync(RoleEntity, new Claim("AccessLevel", item.Value));
@@ -108,7 +109,7 @@ namespace IdentityLearning.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = nameof(persmission.DeleteRole))]
+        [Authorize(Policy = nameof(PersmissionsEnum.DeleteRole))]
         public async Task<IActionResult> DeleteRole(string Id)
         {
             Id = CheckXss.CheckIt(Id);
@@ -123,7 +124,7 @@ namespace IdentityLearning.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = nameof(persmission.AccessLevelRole))]
+        [Authorize(Policy = nameof(PersmissionsEnum.AccessLevelRole))]
         public async Task<IActionResult> AccessLevelRole(string Id)
         {
             Id = CheckXss.CheckIt(Id);
@@ -170,7 +171,7 @@ namespace IdentityLearning.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = nameof(persmission.AccessLevelRole))]
+        [Authorize(Policy = nameof(PersmissionsEnum.AccessLevelRole))]
         public async Task<IActionResult> AccessLevelRole(CreateRoleViewModel Role)
         {
             if (ModelState.IsValid)
@@ -190,7 +191,7 @@ namespace IdentityLearning.Controllers
 
                     foreach (var item in Role.PermissionIn)
                     {
-                        if (Enum.IsDefined(typeof(persmission), item.Value))
+                        if (Enum.IsDefined(typeof(PersmissionsEnum), item.Value))
                         {
                             if (item.Selected == false)
                             {
@@ -202,7 +203,7 @@ namespace IdentityLearning.Controllers
 
                     foreach (var item in Role.PermissionOut)
                     {
-                        if (Enum.IsDefined(typeof(persmission), item.Value))
+                        if (Enum.IsDefined(typeof(PersmissionsEnum), item.Value))
                         {
                             if (item.Selected == true)
                             {

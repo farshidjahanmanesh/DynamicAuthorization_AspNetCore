@@ -1,11 +1,9 @@
 ﻿using System;
 
-namespace IdentityLearning.Models
+namespace SharedServices.GraphModel
 {
-
-
     [Serializable]
-    public class DeviceGraphData
+    public class DeviceGraph
     {
         public int IOS { get; set; }
         public int Android { get; set; }

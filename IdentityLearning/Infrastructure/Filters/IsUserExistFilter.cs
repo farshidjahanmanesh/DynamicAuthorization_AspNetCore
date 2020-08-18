@@ -2,21 +2,22 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Filters;
+using SharedServices.Models.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IdentityLearning.Infrastructure
+namespace Filters
 {
 
  
 
     public class IsUserExistFilter:ActionFilterAttribute
     {
-        private readonly UserManager<User> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public IsUserExistFilter(UserManager<User> userManager)
+        public IsUserExistFilter(UserManager<ApplicationUser> userManager)
         {
             this.userManager = userManager;
         }

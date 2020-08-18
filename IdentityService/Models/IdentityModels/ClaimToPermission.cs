@@ -1,39 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
-namespace IdentityLearning.Models
+namespace SharedServices.Models.IdentityModels
 {
-    public enum graphPermission
-    {
-        ViewerVisitor,
-        DeviceChecker,
-        BrowserVisitor
-    }
-
-    public enum persmission
-    {
-        BasePermission = 1,
-
-        RoleView=20,
-        CreateRole=21,
-        DeleteRole=22,
-        UpdateRole=23,
-        AccessLevelRole=24,
-
-        
-
-        UserView=30,
-        UpdateUser=31,
-        SetRoleTOUser=32,
-        DeleteUser=33,
-
-
-        ViewerVisitor=60,
-        DeviceChecker=61,
-        BrowserVisitor=62
-    }
-
-
     public static class ClaimToPermission
     {
         static Dictionary<string, string> PersianPermissions = new Dictionary<string, string>();

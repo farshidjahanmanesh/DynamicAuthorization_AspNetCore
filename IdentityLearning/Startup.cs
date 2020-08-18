@@ -1,21 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using IdentityLearning.Models;
+using AutoMapper;
+using Filters;
+using IdentityLearning.Infrastructure;
+using IdentityLearning.Infrastructure.AutoMapper;
+using MailServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using IdentityLearning.Infrastructure;
-using IdentityLearning.Services;
-using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Middlewares;
+using SharedServices.Context;
+using SharedServices.GraphModel;
+using SharedServices.Models.IdentityModels;
+using System;
+using System.Linq;
+using UploadService;
 
 namespace IdentityLearning
 {
@@ -53,7 +57,7 @@ namespace IdentityLearning
                 options.UseSqlServer(configuration["ConnectionString"]);
             });
 
-            services.AddIdentity<User, IdentityRole>(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
@@ -70,8 +74,8 @@ namespace IdentityLearning
             //services.AddScoped<IAuthorizationService, PolicyAuthorize>();
             services.AddAuthorization(config =>
             {
-                var type = typeof(persmission);
-                var members = type.GetFields().Where(x => x.FieldType == typeof(persmission));
+                var type = typeof(PersmissionsEnum);
+                var members = type.GetFields().Where(x => x.FieldType == typeof(PersmissionsEnum));
                 foreach (var item in members)
                 {
                     config.AddPolicy(item.Name,
@@ -105,10 +109,15 @@ namespace IdentityLearning
             services.AddScoped<IsUserExistFilter>();
             services.AddScoped<FileUpload>();
             services.AddHostedService<TimedHostedService>();
-          //  services.AddTransient<test>();
+            services.AddScoped<GraphRepository>();
+            services.AddAntiforgery();
+            services.AddAutoMapper(c => c.AddProfile(typeof(UserProfile)));
+
         }
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+
+
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else
@@ -126,6 +135,11 @@ namespace IdentityLearning
 
             app.UseRouting();
             app.UseAuthorization();
+
+
+
+
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -133,9 +147,63 @@ namespace IdentityLearning
                     pattern: "{controller=home}/{action=index}/{id?}");
             });
 
-            //SeedData();
+
+            InitializeDatabase(app);
         }
 
+        private void InitializeDatabase(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<TestIdentityDbContext>();
+                if (context.Roles.Any(c => c.Name == "SuperAdmin"))
+                    return;
+                PasswordHasher<ApplicationUser> hashing = new PasswordHasher<ApplicationUser>(null);
+                var userId = Guid.NewGuid().ToString();
+                ApplicationUser user = new ApplicationUser()
+                {
+                    Email = "admin@admin.com",
+                    NormalizedEmail = "ADMIN@ADMIN.COM",
+                    UserName = "admin@admin.com",
+                    NormalizedUserName = "ADMIN@ADMIN.COM",
+                    Id = userId,
+                    IsActive = true,
+                    EmailConfirmed = true
+                };
+                user.PasswordHash = hashing.HashPassword(user, "admin");
+                context.Users.Add(user);
+                var roleId = Guid.NewGuid().ToString();
+                Role role = new Role()
+                {
+                    Name = "SuperAdmin",
+                    NormalizedName = "SUPERADMIN",
+                    Id = roleId
+                };
+                context.Roles.Add(role);
+
+                var allClaims = ClaimToPermission.GetAllClaims();
+
+                foreach (var item in allClaims)
+                {
+                    context.RoleClaims.Add(new IdentityRoleClaim<string>()
+                    {
+                        ClaimType = "AccessLevel",
+                        ClaimValue = item.Key,
+                        RoleId = role.Id
+                    });
+                }
+                context.SaveChanges();
+                context.UserRoles.Add(new IdentityUserRole<string>()
+                {
+                    RoleId = role.Id,
+                    UserId = user.Id
+                });
+
+                context.SaveChanges();
+                context.Dispose();
+            }
+
+        }
 
     }
 }

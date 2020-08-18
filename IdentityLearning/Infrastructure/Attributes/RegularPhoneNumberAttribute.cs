@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace IdentityLearning.Infrastructure
+namespace Attributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class RegularPhoneNumberAttribute : ValidationAttribute

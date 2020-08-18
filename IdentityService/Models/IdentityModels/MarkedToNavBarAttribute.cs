@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IdentityLearning.Models
+namespace SharedServices.Models.IdentityModels
 {
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]

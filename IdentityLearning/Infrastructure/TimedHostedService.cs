@@ -1,7 +1,7 @@
-﻿using IdentityLearning.Models;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SharedServices.Context;
 using System;
 using System.Net.Http;
 using System.Threading;
@@ -16,7 +16,7 @@ namespace IdentityLearning.Infrastructure
         private readonly IServiceScopeFactory scopeFactory;
         private readonly IConfiguration configuration;
 
-        public TimedHostedService(IServiceScopeFactory scopeFactory,IConfiguration configuration)
+        public TimedHostedService(IServiceScopeFactory scopeFactory, IConfiguration configuration)
         {
             this.scopeFactory = scopeFactory;
             this.configuration = configuration;
@@ -24,12 +24,12 @@ namespace IdentityLearning.Infrastructure
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
-            _timer = new Timer(DoWork, null, TimeSpan.Zero,
+            _timer = new Timer(DoWork, null, TimeSpan.FromMinutes(1),
                 TimeSpan.FromMinutes(
                     Convert.ToInt32(configuration["DataGraphTime"])
                     ));
 
-            _keepAlive = new Timer(KeepAlive, null,TimeSpan.Zero,
+            _keepAlive = new Timer(KeepAlive, null, TimeSpan.FromMinutes(1),
                 TimeSpan.FromMinutes(
                     Convert.ToInt32(configuration["KeepAliveTime"])));
 
@@ -38,7 +38,7 @@ namespace IdentityLearning.Infrastructure
         private async void KeepAlive(object state)
         {
             HttpClient httpClient = new HttpClient();
-            var result=await httpClient.GetAsync(configuration["WebAddress"]);
+            var result = await httpClient.GetAsync(configuration["WebAddress"]);
 
 
         }
@@ -55,7 +55,7 @@ namespace IdentityLearning.Infrastructure
                     }
                 }
             }
-            
+
 
         }
 

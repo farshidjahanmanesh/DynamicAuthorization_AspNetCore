@@ -1,32 +1,35 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Backend_React;
 using IdentityLearning.Infrastructure;
-using IdentityLearning.Models;
 using IdentityLearning.Models.ViewModels;
 using IdentityLearning.Services;
+using MailServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SharedServices.Models.IdentityModels;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using UploadService;
 
 namespace IdentityLearning.Controllers
 {
     // [AllowAnonymous]
     public class AccountController : Controller
     {
-        private readonly UserManager<User> userManager;
-        private readonly SignInManager<User> signInManager;
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
         private readonly IMailService mailService;
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager,
-            IMailService mailService)
+        private readonly IMapper mapper;
+
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+            IMailService mailService, IMapper mapper)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.mailService = mailService;
+            this.mapper = mapper;
         }
 
         [AllowAnonymous]
@@ -51,7 +54,7 @@ namespace IdentityLearning.Controllers
             }
 
 
-            User user = await userManager.FindByEmailAsync(login.Email);
+            var user = await userManager.FindByEmailAsync(login.Email);
             if (object.ReferenceEquals(null, user))
             {
                 ModelState.AddModelError(string.Empty, AuthorizeSystemError.InvalidUsernameOrPassword);
@@ -81,10 +84,8 @@ namespace IdentityLearning.Controllers
 
         }
 
-        //[Authorize]
         public async Task<IActionResult> LogOut()
         {
-            var user = User;
             await signInManager.SignOutAsync();
             return RedirectToAction("index", controllerName: "home");
         }
@@ -100,7 +101,7 @@ namespace IdentityLearning.Controllers
         [AllowAnonymous]
         public IActionResult CreateAccount()
         {
-            return View(new UserAccountViewModel());
+            return View();
         }
 
         [AllowAnonymous]
@@ -110,15 +111,10 @@ namespace IdentityLearning.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userDetail = mapper.Map<ApplicationUser>(uv);
+                userDetail.IsActive = true;
+                userDetail.IsExternalLogin = false;
 
-                var userDetail = new User()
-                {
-                    PersianName = uv.PersianName.Trim(),
-                    Email = uv.Email.Trim(),
-                    UserName = uv.Email.Trim(),
-                    IsActive = true,
-                    IsExternalLogin = false
-                };
                 var createResult = await userManager.CreateAsync(userDetail, uv.Password.Trim());
 
                 if (createResult.Succeeded)
@@ -151,25 +147,16 @@ namespace IdentityLearning.Controllers
 
         }
 
-        // [Authorize]
         [MarkedToNavBar("تغییر رمز عبور")]
         public async Task<IActionResult> ChangePassword()
         {
             var user = await userManager.FindByNameAsync(User.Identity.Name);
 
-            var userPassword = new ChangePasswrodViewModel()
-            {
-                UserId = user.Id,
-                ConfirmPassword = "",
-                OldPassword = "",
-                Password = "",
-                IsExternal = user.IsExternalLogin
-            };
+            var userPassword = mapper.Map<ChangePasswrodViewModel>(user);
             return View(userPassword);
         }
 
         [HttpPost]
-        // [Authorize]
         [MarkedToNavBar("تغییر رمز عبور")]
         public async Task<IActionResult> ChangePassword(ChangePasswrodViewModel cp)
         {
@@ -292,9 +279,6 @@ namespace IdentityLearning.Controllers
             }
 
             return RedirectToAction("index", "home");
-
-
-            throw new System.Exception();
         }
 
         [AllowAnonymous]
@@ -365,7 +349,7 @@ namespace IdentityLearning.Controllers
 
             if (user == null)
             {
-                var createUser = new User
+                var createUser = new ApplicationUser
                 {
                     Email = userEmail,
                     UserName = userEmail,
@@ -373,7 +357,6 @@ namespace IdentityLearning.Controllers
                     IsActive = true,
                     EmailConfirmed = true
                 };
-                // var pass =string.Concat(Guid.NewGuid().ToString().Take(10));
                 var createResult = await userManager.CreateAsync(createUser);
                 if (!createResult.Succeeded)
                     return NotFound();
@@ -408,25 +391,15 @@ namespace IdentityLearning.Controllers
 
         }
 
-        //[Authorize]
         [MarkedToNavBar("تغییر پروفایل کاربری")]
         public async Task<IActionResult> EditProfile()
         {
             var user = await userManager.FindByEmailAsync(User.Identity.Name);
-            var userModel = new UserUpdateViewModel()
-            {
-                AboutMe = user.AboutMe,
-                Email = user.Email,
-                Id = user.Id,
-                PersianName = user.PersianName,
-                PhoneNumber = user.PhoneNumber,
-                ProfileImageUrl = string.Format("/images/profiles/{0}", user.ProfilePicture)
-            };
-
+            var userModel = mapper.Map<UserUpdateViewModel>(user);
+            userModel.ProfileImageUrl = string.Format("/images/profiles/{0}", user.ProfilePicture);
             return View(userModel);
         }
 
-        //[Authorize]
         [HttpPost]
         public async Task<IActionResult> EditProfile(UserUpdateViewModel up, [FromServices]FileUpload fileUpload)
         {
@@ -468,12 +441,13 @@ namespace IdentityLearning.Controllers
             ViewData["success"] = true;
             if (user.ProfilePicture == null)
             {
-                if (takeProfilePicture != null && takeProfilePicture != "" && takeProfilePicture != "null")
+                if (string.IsNullOrWhiteSpace(takeProfilePicture))
                     await userManager.RemoveClaimAsync(user, new Claim("ProfilePicture", takeProfilePicture));
             }
             else
             {
-                if (takeProfilePicture == null || takeProfilePicture == "" || takeProfilePicture == "null")
+
+                if (string.IsNullOrWhiteSpace(takeProfilePicture))
                 {
                     var r = await userManager.AddClaimAsync(user,
                   new Claim("ProfilePicture", user.ProfilePicture));
@@ -486,7 +460,7 @@ namespace IdentityLearning.Controllers
 
             }
 
-            if (takePersianName == null || takePersianName == "" || takePersianName == "null")
+            if (string.IsNullOrWhiteSpace(takePersianName))
             {
                 var r = await userManager.AddClaimAsync(user,
                new Claim("UserName", user.PersianName));

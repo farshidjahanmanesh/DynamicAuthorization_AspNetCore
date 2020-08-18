@@ -1,35 +1,38 @@
-﻿using IdentityLearning.Infrastructure;
-using IdentityLearning.Models;
+﻿using AutoMapper;
+using Filters;
+using IdentityLearning.Infrastructure;
 using IdentityLearning.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SharedServices.Models.IdentityModels;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace IdentityLearning.Controllers
 {
-    [Authorize(Policy =nameof(persmission.BasePermission))]
+    [Authorize(Policy = nameof(PersmissionsEnum.BasePermission))]
     public class UserManagerController : Controller
     {
-        private readonly UserManager<User> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IMapper mapper;
 
-        public UserManagerController(UserManager<User> userManager,
-            RoleManager<IdentityRole> roleManager)
+        public UserManagerController(UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, IMapper mapper)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
-
+            this.mapper = mapper;
         }
 
 
 
-        [Authorize(Policy = nameof(persmission.UserView))]
+        [Authorize(Policy = nameof(PersmissionsEnum.UserView))]
         [MarkedToNavBar("نمایش کاربران")]
-        public IActionResult UsersView()
+        public async Task<IActionResult> UsersView()
         {
             if (TempData.ContainsKey("DeleteSucc"))
             {
@@ -41,14 +44,19 @@ namespace IdentityLearning.Controllers
                 TempData.Remove("DeleteError");
                 ViewData["DeleteError"] = true;
             }
-            var users = userManager.Users.Where(c => c.UserName != User.Identity.Name).ToList();
+
+            var superUserId = (await userManager.GetUsersInRoleAsync("SuperAdmin")).First();
+            var users = mapper.Map<List<UserListViewModel>>
+                            (userManager.Users.Where(c => c.UserName != User.Identity.Name
+                           && c.Id != superUserId.Id).ToList());
+
             return View(users);
         }
 
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = nameof(persmission.DeleteUser))]
+        [Authorize(Policy = nameof(PersmissionsEnum.DeleteUser))]
         [ServiceFilter(typeof(IsUserExistFilter))]
-        
+
         public async Task<IActionResult> DeleteUser(string id)
         {
             id = CheckXss.CheckIt(id);
@@ -67,7 +75,7 @@ namespace IdentityLearning.Controllers
         }
 
 
-        [Authorize(Policy = nameof(persmission.UpdateUser))]
+        [Authorize(Policy = nameof(PersmissionsEnum.UpdateUser))]
         [ServiceFilter(typeof(IsUserExistFilter))]
         public async Task<IActionResult> UpdateUser(string id)
         {
@@ -93,7 +101,7 @@ namespace IdentityLearning.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = nameof(persmission.UpdateUser))]
+        [Authorize(Policy = nameof(PersmissionsEnum.UpdateUser))]
         [ServiceFilter(typeof(IsUserExistFilter))]
         public async Task<IActionResult> UpdateUser(UserUpdateViewModel userUpdate)
         {
@@ -140,14 +148,14 @@ namespace IdentityLearning.Controllers
         }
 
 
-        [Authorize(Policy = nameof(persmission.SetRoleTOUser))]
+        [Authorize(Policy = nameof(PersmissionsEnum.SetRoleTOUser))]
         [ServiceFilter(typeof(IsUserExistFilter))]
         public async Task<IActionResult> AccessLevelUser(string id)
         {
             id = CheckXss.CheckIt(id);
             if (ModelState.IsValid)
             {
-                if (TempData["Success"]!=null)
+                if (TempData["Success"] != null)
                 {
                     TempData.Remove("Success");
                     ViewBag.Success = true;
@@ -188,7 +196,7 @@ namespace IdentityLearning.Controllers
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        [Authorize(Policy = nameof(persmission.SetRoleTOUser))]
+        [Authorize(Policy = nameof(PersmissionsEnum.SetRoleTOUser))]
         public async Task<IActionResult> AccessLevelUser(UserToRoleViewModel uv)
         {
             if (ModelState.IsValid)
@@ -201,7 +209,7 @@ namespace IdentityLearning.Controllers
                     return View(uv);
                 }
                 var roleMustRemove = new List<string>();
-                foreach(var item in uv.RoleIn)
+                foreach (var item in uv.RoleIn)
                 {
                     if (!item.Selected)
                         roleMustRemove.Add(item.Text);
@@ -215,10 +223,10 @@ namespace IdentityLearning.Controllers
                 }
 
 
-                var addResult = await userManager.AddToRolesAsync(user,roleMustAdd);
-                var subresult = await userManager.RemoveFromRolesAsync(user,roleMustRemove);
-                
-                if (!addResult.Succeeded||!subresult.Succeeded)
+                var addResult = await userManager.AddToRolesAsync(user, roleMustAdd);
+                var subresult = await userManager.RemoveFromRolesAsync(user, roleMustRemove);
+
+                if (!addResult.Succeeded || !subresult.Succeeded)
                 {
                     ModelState.AddModelError("errorInProcess", "پردازش این عملیات با مشکل مواجه شده است");
                     ViewBag.UnValid = true;

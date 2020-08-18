@@ -1,7 +1,9 @@
-﻿using IdentityLearning.Models;
+﻿
 using Microsoft.Extensions.DependencyInjection;
+using Middlewares;
+using SharedServices.Context;
 using System;
-using IdentityLearning.Models.Entities;
+using SharedServices.Models.Entities;
 namespace IdentityLearning.Infrastructure
 {
     public class SaveGraphsDatas : IDisposable
@@ -28,13 +30,14 @@ namespace IdentityLearning.Infrastructure
 
             _ctx.BrowserCounter.Add(new BrowserCounter()
             {
-                Date=DateTime.Now,
-                Chorome=BrowserCheckerMiddleware.Data.Chorome,
-                Edge=BrowserCheckerMiddleware.Data.Edge,
-                FireFox=BrowserCheckerMiddleware.Data.FireFox,
-                IE=BrowserCheckerMiddleware.Data.IE,
-                Safari=BrowserCheckerMiddleware.Data.Safari,
-                Other=BrowserCheckerMiddleware.Data.Other,
+                
+                Date = DateTime.Now,
+                Chorome = BrowserCheckerMiddleware.Data.Chorome,
+                Edge = BrowserCheckerMiddleware.Data.Edge,
+                FireFox = BrowserCheckerMiddleware.Data.FireFox,
+                IE = BrowserCheckerMiddleware.Data.IE,
+                Safari = BrowserCheckerMiddleware.Data.Safari,
+                Other = BrowserCheckerMiddleware.Data.Other,
             });
 
             _ctx.DeviceCounter.Add(new DeviceCounter()
@@ -51,7 +54,7 @@ namespace IdentityLearning.Infrastructure
             BrowserCheckerMiddleware.Clear();
 
             _ctx.SaveChanges();
-            
+
         }
     }
 

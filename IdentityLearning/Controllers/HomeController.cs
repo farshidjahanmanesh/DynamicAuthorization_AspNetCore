@@ -1,18 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Mail;
-using System.Text.Json;
-using System.Threading.Tasks;
-using IdentityLearning.Infrastructure;
-using IdentityLearning.Models;
-using IdentityLearning.Models.ViewModels;
-using IdentityLearning.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedServices.GraphModel;
 
 namespace IdentityLearning.Controllers
 {
@@ -21,23 +8,15 @@ namespace IdentityLearning.Controllers
 
         public HomeController()
         {
-            LoginViewModel v = new LoginViewModel()
-            {
-                Email="sadaqwe",
-                Password="<script></script>",
-                RememberMe=false,
-                ReturnUrl=null
-            };
-          
         }
 
-        public IActionResult Index([FromServices] TestIdentityDbContext _ctx)
+        public IActionResult Index([FromServices] GraphRepository graphRepository)
         {
-            GraphDataViewModel gp = new GraphDataViewModel(User.Claims.ToList(),_ctx);
-            return View(gp);
+            graphRepository.StartGetData(User.Claims);
+            return View(graphRepository);
         }
 
     }
 
-  
+
 }

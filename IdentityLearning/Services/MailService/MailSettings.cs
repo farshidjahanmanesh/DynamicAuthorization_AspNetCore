@@ -1,4 +1,4 @@
-﻿namespace IdentityLearning.Infrastructure
+﻿namespace MailServices
 {
     public class MailSettings
     {

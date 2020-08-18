@@ -1,11 +1,11 @@
-﻿using IdentityLearning.Models;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using SharedServices.GraphModel;
 using System;
 using System.Threading.Tasks;
 using UAParser;
 
-namespace IdentityLearning.Infrastructure
+namespace Middlewares
 {
     public static class DeviceCheckerMiddlewareExtensions
     {
@@ -19,7 +19,7 @@ namespace IdentityLearning.Infrastructure
     public class DeviceCheckerMiddleware
     {
         private readonly RequestDelegate next;
-        public static DeviceGraphData Data { get; } = new DeviceGraphData();
+        public static DeviceGraph Data { get; } = new DeviceGraph();
         public DeviceCheckerMiddleware(RequestDelegate _next)
         {
             next = _next;

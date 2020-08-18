@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
-namespace IdentityLearning.Infrastructure
+namespace MailServices
 {
     public class MailRequest
     {
